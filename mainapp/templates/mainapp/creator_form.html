@@ -1,0 +1,136 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div>
+    <h1 style="color: var(--neon-pink);">{% if project %}編輯專案{% else %}新增專案{% endif %}</h1>
+    
+    <form method="post" id="project-form">
+        {% csrf_token %}
+        <input type="hidden" name="modules_data" id="modules_data" value="[]">
+        
+        <div class="pixel-border" style="border-color: var(--neon-blue);">
+            <div class="form-group">
+                <label>專案名稱 TITLE :</label>
+                <input type="text" name="title" class="pixel-input" required value="{{ project.title|default_if_none:'' }}">
+            </div>
+            <div class="form-group">
+                <label>故事前言 STORY :</label>
+                <textarea name="story_intro" class="pixel-textarea" rows="4">{{ project.story_intro|default_if_none:'' }}</textarea>
+            </div>
+        </div>
+
+        <h2 style="color: var(--neon-yellow); margin-top: 30px;">解謎模組 MODULES</h2>
+        <div id="modules-container">
+            <!-- Modules will be dynamically added here -->
+        </div>
+
+        <div style="margin: 20px 0;">
+            <select id="module-selector" class="pixel-select" style="width: auto; display: inline-block;">
+                {% for val, name in module_choices %}
+                    <option value="{{ val }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="pixel-btn" id="add-module-btn" style="padding: 10px;">+ 新增模組</button>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center;">
+            <a href="{% url 'creator_list' %}" class="pixel-btn pink" style="margin-right: 20px;">取消</a>
+            <button type="submit" class="pixel-btn">儲存專案 SAVE</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let modules = [];
+    // Pre-populate if editing
+    {% if project %}
+        {% for mod in project.modules.all %}
+            modules.push({
+                module_type: {{ mod.module_type }},
+                module_name: "{{ mod.get_module_type_display }}",
+                time_limit: {{ mod.time_limit }},
+                story_text: `{{ mod.story_text|escapejs }}`,
+                config_data: JSON.parse(`{{ mod.config_data|default:'{}'|escapejs }}`)
+            });
+        {% endfor %}
+    {% endif %}
+
+    const container = document.getElementById('modules-container');
+    const moduleSelector = document.getElementById('module-selector');
+    const form = document.getElementById('project-form');
+    const modulesDataInput = document.getElementById('modules_data');
+
+    function renderModules() {
+        container.innerHTML = '';
+        modules.forEach((mod, index) => {
+            const modDiv = document.createElement('div');
+            modDiv.className = 'module-card';
+            modDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--primary-blue); padding-bottom: 10px; margin-bottom: 10px;">
+                    <h3 style="color: var(--neon-pink); margin: 0;">${index + 1}. ${mod.module_name}</h3>
+                    <button type="button" class="pixel-btn pink" style="padding: 5px; font-size: 0.8rem; margin: 0;" onclick="removeModule(${index})">刪除</button>
+                </div>
+                <div class="grid">
+                    <div class="form-group">
+                        <label>時間限制 Time (秒):</label>
+                        <input type="number" class="pixel-input time-input" value="${mod.time_limit}" data-index="${index}" min="10">
+                    </div>
+                    <div class="form-group">
+                        <label>故事引導 Story Text:</label>
+                        <textarea class="pixel-textarea story-input" data-index="${index}" rows="2">${mod.story_text || ''}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>答案/設定 JSON (Config):</label>
+                    <input type="text" class="pixel-input config-input" value='${JSON.stringify(mod.config_data)}' data-index="${index}" placeholder='{"answer": "A"}'>
+                </div>
+            `;
+            container.appendChild(modDiv);
+        });
+        
+        // Add listeners
+        document.querySelectorAll('.time-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                modules[e.target.dataset.index].time_limit = parseInt(e.target.value);
+            });
+        });
+        document.querySelectorAll('.story-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                modules[e.target.dataset.index].story_text = e.target.value;
+            });
+        });
+        document.querySelectorAll('.config-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                try {
+                    modules[e.target.dataset.index].config_data = JSON.parse(e.target.value);
+                } catch(err) {
+                    alert('無效的 JSON 格式！');
+                }
+            });
+        });
+    }
+
+    window.removeModule = function(index) {
+        modules.splice(index, 1);
+        renderModules();
+    }
+
+    document.getElementById('add-module-btn').addEventListener('click', () => {
+        const type = parseInt(moduleSelector.value);
+        const name = moduleSelector.options[moduleSelector.selectedIndex].text;
+        modules.push({
+            module_type: type,
+            module_name: name,
+            time_limit: 60,
+            story_text: '',
+            config_data: {}
+        });
+        renderModules();
+    });
+
+    form.addEventListener('submit', (e) => {
+        modulesDataInput.value = JSON.stringify(modules);
+    });
+
+    renderModules();
+</script>
+{% endblock %}

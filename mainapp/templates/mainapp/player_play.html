@@ -1,0 +1,132 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div style="text-align: center;">
+    <h1 style="color: var(--neon-pink);">{{ project.title }}</h1>
+    
+    <div class="pixel-border" style="border-color: var(--neon-blue); max-width: 600px; margin: 0 auto; text-align: left;">
+        <h2 style="color: var(--neon-blue); text-align: center;">遊戲狀態</h2>
+        
+        <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+            <div style="text-align: center;">
+                <p style="color: var(--neon-yellow); margin-bottom: 5px;">倒數計時 TIMER</p>
+                <div style="font-size: 2rem; color: var(--neon-yellow);" id="timer">-- : --</div>
+            </div>
+            <div style="text-align: center;">
+                <p style="color: var(--neon-pink); margin-bottom: 5px;">錯誤次數 ERRORS</p>
+                <div style="font-size: 2rem; color: var(--neon-pink);" id="errors">0</div>
+            </div>
+        </div>
+
+        <div style="border-top: 2px dashed var(--primary-blue); padding-top: 20px; margin-top: 20px;">
+            <h3 style="color: var(--neon-blue);">故事介面 STORY :</h3>
+            <p id="story-text" style="font-size: 1.2rem; line-height: 1.5;">{{ project.story_intro }}</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <button id="start-btn" class="pixel-btn" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">開始連線 START</button>
+            <button id="end-btn" class="pixel-btn pink" style="display: none;">強制結束 END</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Module configuration payload from Django to send to Raspberry Pi via MQTT
+    const projectConfig = [
+        {% for mod in project.modules.all %}
+        {
+            module_type: {{ mod.module_type }},
+            time_limit: {{ mod.time_limit }},
+            story: `{{ mod.story_text|escapejs }}`,
+            config: JSON.parse(`{{ mod.config_data|default:'{}'|escapejs }}`)
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const startBtn = document.getElementById('start-btn');
+    const endBtn = document.getElementById('end-btn');
+    const timerDisplay = document.getElementById('timer');
+    const errorsDisplay = document.getElementById('errors');
+    const storyTextDisplay = document.getElementById('story-text');
+
+    let currentModuleIndex = 0;
+    let timerInterval = null;
+    let timeRemaining = 0;
+    let errors = 0;
+
+    startBtn.addEventListener('click', () => {
+        // Mocking MQTT Connection and sending config
+        console.log("Publishing project config to MQTT topic 'iot_escape/project/start'...");
+        console.log(JSON.stringify(projectConfig));
+        
+        startBtn.style.display = 'none';
+        endBtn.style.display = 'inline-block';
+        
+        if (projectConfig.length > 0) {
+            loadModule(0);
+        } else {
+            storyTextDisplay.textContent = "此專案沒有任何模組！";
+        }
+    });
+
+    endBtn.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        startBtn.style.display = 'inline-block';
+        endBtn.style.display = 'none';
+        timerDisplay.textContent = "-- : --";
+        storyTextDisplay.textContent = "遊戲已結束。";
+        errorsDisplay.textContent = "0";
+        errors = 0;
+    });
+
+    function loadModule(index) {
+        if (index >= projectConfig.length) {
+            storyTextDisplay.textContent = "🎉 恭喜通關所有模組！遊戲結束。";
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "00 : 00";
+            return;
+        }
+
+        currentModuleIndex = index;
+        const mod = projectConfig[index];
+        storyTextDisplay.innerHTML = `<span style="color:var(--neon-pink)">[關卡 ${index + 1}]</span><br>` + mod.story;
+        timeRemaining = mod.time_limit;
+        
+        clearInterval(timerInterval);
+        updateTimerDisplay();
+        
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                storyTextDisplay.innerHTML += "<br><span style="color:red">時間到！炸彈引爆！</span>";
+            }
+        }, 1000);
+
+        // Simulation: Automatically go to next module after 10s for testing
+        // setTimeout(() => {
+        //     loadModule(index + 1);
+        // }, 10000);
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const secs = (timeRemaining % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = `${mins} : ${secs}`;
+    }
+
+    // Mock receiving MQTT messages from hardware
+    function mockReceiveMqttMessage(topic, payload) {
+        if (topic === 'iot_escape/status/error') {
+            errors++;
+            errorsDisplay.textContent = errors;
+        } else if (topic === 'iot_escape/status/module_passed') {
+            loadModule(currentModuleIndex + 1);
+        }
+    }
+
+    // Expose mock function for manual testing in browser console
+    window.triggerError = () => mockReceiveMqttMessage('iot_escape/status/error', {});
+    window.triggerPass = () => mockReceiveMqttMessage('iot_escape/status/module_passed', {});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div style="margin-top: 20px;">
+    <h1 style="color: var(--neon-yellow);">選擇遊玩專案</h1>
+    <p>挑選一個您喜歡的解謎遊戲！</p>
+    
+    {% if projects %}
+        <div class="grid" style="margin-top: 30px;">
+        {% for project in projects %}
+            <div class="pixel-border" style="border-color: var(--neon-blue);">
+                <h3 style="color: var(--neon-blue);">{{ project.title }}</h3>
+                <p style="color: #aaa; font-size: 0.9rem;">作者: {{ project.creator.username }}</p>
+                <p>{{ project.story_intro|truncatechars:50 }}</p>
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="{% url 'player_play' project.id %}" class="pixel-btn" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">開始挑戰 PLAY</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin-top: 30px; color: var(--neon-pink);">目前還沒有任何專案可以遊玩！</p>
+    {% endif %}
+</div>
+{% endblock %}

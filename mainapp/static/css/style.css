@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+:root {
+    --bg-color: #050510;
+    --primary-blue: #0044ff;
+    --neon-blue: #00e5ff;
+    --neon-pink: #ff00ff;
+    --neon-yellow: #ffff00;
+    --text-color: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'DotGothic16', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    text-shadow: 2px 2px 0 var(--primary-blue);
+    letter-spacing: 2px;
+}
+
+.pixel-border {
+    border: 4px solid var(--primary-blue);
+    padding: 20px;
+    margin: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 10px var(--primary-blue), 0 0 10px var(--primary-blue);
+}
+
+.pixel-btn {
+    background-color: transparent;
+    color: var(--neon-yellow);
+    border: 4px solid var(--primary-blue);
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+}
+
+.pixel-btn:hover {
+    background-color: var(--primary-blue);
+    color: #fff;
+    box-shadow: 0 0 15px var(--neon-blue);
+}
+
+.pixel-btn.pink {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+.pixel-btn.pink:hover {
+    background-color: var(--neon-pink);
+    color: #fff;
+    box-shadow: 0 0 15px var(--neon-pink);
+}
+
+.pixel-input, .pixel-select, .pixel-textarea {
+    background-color: #000;
+    color: var(--neon-blue);
+    border: 2px solid var(--primary-blue);
+    padding: 10px;
+    font-size: 1rem;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.pixel-input:focus, .pixel-select:focus, .pixel-textarea:focus {
+    outline: none;
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-pink);
+}
+
+.heart-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+/* Simplified pixel heart using blocks */
+.pixel-heart {
+    width: 20px;
+    height: 20px;
+    background-color: var(--neon-pink);
+    position: relative;
+    transform: rotate(45deg);
+    margin: 10px;
+}
+.pixel-heart::before,
+.pixel-heart::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-color: var(--neon-pink);
+    border-radius: 50%;
+    position: absolute;
+}
+.pixel-heart::before {
+    top: -10px;
+    left: 0;
+}
+.pixel-heart::after {
+    top: 0;
+    left: -10px;
+}
+
+.pixel-heart.blue, .pixel-heart.blue::before, .pixel-heart.blue::after { background-color: var(--neon-blue); }
+.pixel-heart.yellow, .pixel-heart.yellow::before, .pixel-heart.yellow::after { background-color: var(--neon-yellow); }
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.module-card {
+    border: 2px dashed var(--neon-pink);
+    padding: 15px;
+    margin-bottom: 15px;
+    background: rgba(255, 0, 255, 0.05);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 4px solid var(--primary-blue);
+    margin-bottom: 20px;
+}

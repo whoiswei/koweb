@@ -1,0 +1,27 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div style="margin-top: 20px;">
+    <h1 style="color: var(--neon-pink);">創作者專案列表</h1>
+    <a href="{% url 'creator_form' %}" class="pixel-btn pink">+ 新增專案</a>
+    
+    {% if projects %}
+        <div class="grid" style="margin-top: 30px;">
+        {% for project in projects %}
+            <div class="pixel-border" style="border-color: var(--neon-blue);">
+                <h3 style="color: var(--neon-blue);">{{ project.title }}</h3>
+                <p>最後更新: {{ project.updated_at|date:"Y-m-d H:i" }}</p>
+                <div style="margin-top: 15px;">
+                    <a href="{% url 'creator_edit' project.id %}" class="pixel-btn" style="padding: 5px 10px; font-size: 1rem;">編輯</a>
+                    <form method="post" action="{% url 'creator_delete' project.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="pixel-btn pink" style="padding: 5px 10px; font-size: 1rem;" onclick="return confirm('確定要刪除此專案？')">刪除</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin-top: 30px; color: var(--neon-yellow);">尚未建立任何專案，點擊上方按鈕開始創作！</p>
+    {% endif %}
+</div>
+{% endblock %}

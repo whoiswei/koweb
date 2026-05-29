@@ -1,0 +1,51 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div class="pixel-border" style="text-align: center;">
+    <h1 style="color: var(--neon-pink);">Welcome to IoT Escape</h1>
+    <p>Please login or register to continue.</p>
+
+    <div class="grid">
+        <!-- Login Form -->
+        <div class="pixel-border" style="border-color: var(--neon-blue);">
+            <h2 style="color: var(--neon-blue);">登入 Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ login_form.as_p }}
+                </div>
+                <button type="submit" name="login" class="pixel-btn">Login</button>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="pixel-border" style="border-color: var(--neon-yellow);">
+            <h2 style="color: var(--neon-yellow);">註冊 Register</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ register_form.as_p }}
+                </div>
+                <button type="submit" name="register" class="pixel-btn" style="border-color: var(--neon-yellow); color: var(--neon-yellow);">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Override django default form styles for pixel theme */
+    input[type="text"], input[type="password"] {
+        background-color: #000;
+        color: var(--neon-blue);
+        border: 2px solid var(--primary-blue);
+        padding: 5px;
+        font-family: 'DotGothic16', sans-serif;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .helptext { display: none; }
+</style>
+{% endblock %}

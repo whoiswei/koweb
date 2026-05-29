@@ -1,0 +1,13 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div class="pixel-border" style="text-align: center; border-color: var(--neon-pink); max-width: 500px; margin: 50px auto;">
+    <h1 style="color: var(--neon-pink);">刪除專案</h1>
+    <p>您確定要刪除專案 "<span style="color: var(--neon-yellow);">{{ project.title }}</span>" 嗎？此動作無法復原！</p>
+    
+    <form method="post" style="margin-top: 30px;">
+        {% csrf_token %}
+        <a href="{% url 'creator_list' %}" class="pixel-btn" style="margin-right: 20px;">取消</a>
+        <button type="submit" class="pixel-btn pink">確認刪除</button>
+    </form>
+</div>
+{% endblock %}

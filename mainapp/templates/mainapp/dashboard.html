@@ -1,0 +1,20 @@
+{% extends 'mainapp/base.html' %}
+{% block content %}
+<div style="text-align: center; margin-top: 50px;">
+    <h1 style="color: var(--neon-blue); font-size: 3rem;">選擇身份 SELECT ROLE</h1>
+    
+    <div class="grid" style="margin-top: 50px;">
+        <div class="pixel-border" style="border-color: var(--neon-pink);">
+            <h2 style="color: var(--neon-pink);">創作者 CREATOR</h2>
+            <p>建立並設計專屬的實境解謎遊戲專案。</p>
+            <a href="{% url 'creator_list' %}" class="pixel-btn pink" style="margin-top: 20px;">進入創作者中心</a>
+        </div>
+        
+        <div class="pixel-border" style="border-color: var(--neon-yellow);">
+            <h2 style="color: var(--neon-yellow);">玩家 PLAYER</h2>
+            <p>選擇遊戲專案，體驗刺激的解謎過程！</p>
+            <a href="{% url 'player_list' %}" class="pixel-btn" style="border-color: var(--neon-yellow); color: var(--neon-yellow); margin-top: 20px;">進入玩家大廳</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
