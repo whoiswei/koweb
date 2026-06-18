@@ -80,8 +80,8 @@ DATABASES = {
         "NAME": "iot_koweb_db",
         "USER": "root",
         "PASSWORD": "root123456",
-        "HOST": "100.97.224.8",
-        "PORT": "3306",
+        "HOST": "127.0.0.1",
+        "PORT": "3307",
     }
 }
 
