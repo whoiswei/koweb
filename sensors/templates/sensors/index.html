@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-width=1.0">
+  <title>物聯網個人專題網站</title>
+  <!-- 引入 XP.css 重現經典風格 -->
+  <link rel="stylesheet" href="https://unpkg.com/xp.css">
+  <!-- 引入 Chart.js 用於繪圖 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #3A6EA5; /* 經典 XP 藍底桌布色 */
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .window {
+      width: 80%;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+    .data-box {
+      background: white;
+      border: 2px inset #dfdfdf;
+      padding: 10px;
+    }
+    .data-value {
+      font-size: 2em;
+      font-weight: bold;
+      color: #000080;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 5px;
+      text-align: left;
+    }
+    th {
+      background: #ece9d8;
+    }
+    /* XP Taskbar */
+    .taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #333 100%);
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      padding: 0 5px;
+      box-sizing: border-box;
+      border-top: 1px solid #0055eb;
+    }
+    .start-button {
+      background: linear-gradient(to bottom, #3f8cf3 0%, #245edb 100%);
+      border: none;
+      border-radius: 0 10px 10px 0;
+      color: white;
+      font-weight: bold;
+      font-style: italic;
+      height: 28px;
+      padding: 0 15px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 2px 2px 3px rgba(0,0,0,0.5);
+    }
+    .start-button:hover {
+      background: linear-gradient(to bottom, #5a9df6 0%, #3f8cf3 100%);
+    }
+    .task-item {
+      background: #3f8cf3;
+      border: 1px solid #1a3b86;
+      border-radius: 3px;
+      color: white;
+      margin-left: 10px;
+      padding: 2px 10px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      height: 20px;
+    }
+    .task-item:hover {
+      background: #5a9df6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 歡迎視窗 -->
+  <div class="window">
+    <div class="title-bar">
+      <div class="title-bar-text">個人資訊</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <p>歡迎來到物聯網專題網站！</p>
+      <ul>
+        <li><strong>姓名：</strong> {{ name }}</li>
+        <li><strong>學號：</strong> {{ student_id }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 即時數據視窗 -->
+  <div class="window">
+    <div class="title-bar">
+      <div class="title-bar-text">即時感測器數據</div>
+    </div>
+    <div class="window-body">
+      <div class="data-grid">
+        <div class="data-box">
+          <div>溫度 (Temperature)</div>
+          <div class="data-value" id="val-temperature">-- °C</div>
+        </div>
+        <div class="data-box">
+          <div>濕度 (Humidity)</div>
+          <div class="data-value" id="val-humidity">-- %</div>
+        </div>
+        <div class="data-box">
+          <div>光照度 (Light)</div>
+          <div class="data-value" id="val-light">-- lx</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 歷史圖表視窗 -->
+  <div class="window">
+    <div class="title-bar">
+      <div class="title-bar-text">歷史數據折線圖</div>
+    </div>
+    <div class="window-body" style="background: white;">
+      <canvas id="sensorChart" height="100"></canvas>
+    </div>
+  </div>
+
+  <!-- 歷史表格視窗 -->
+  <div class="window" style="margin-bottom: 60px;">
+    <div class="title-bar">
+      <div class="title-bar-text">原始數據檢視</div>
+    </div>
+    <div class="window-body">
+      <table>
+        <thead>
+          <tr>
+            <th>時間 (Timestamp)</th>
+            <th>感測器 (Topic)</th>
+            <th>數值 (Value)</th>
+          </tr>
+        </thead>
+        <tbody id="history-table-body">
+          <tr><td colspan="3" style="text-align: center;">載入中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 工作列 (Navbar) -->
+  <div class="taskbar">
+    <button class="start-button">開始</button>
+    <a href="#" class="task-item">組別總網站</a>
+  </div>
+
+  <script>
+    // 初始化 Chart.js
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    const sensorChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: '溫度', data: [], borderColor: 'red', fill: false, tension: 0.1 },
+          { label: '濕度', data: [], borderColor: 'blue', fill: false, tension: 0.1 },
+          { label: '光照度', data: [], borderColor: 'orange', fill: false, tension: 0.1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { display: true, title: { display: true, text: '時間' } },
+          y: { display: true, title: { display: true, text: '數值' } }
+        }
+      }
+    });
+
+    function fetchLatestData() {
+      fetch('/api/latest/')
+        .then(response => response.json())
+        .then(data => {
+          if (data.temperature !== null) document.getElementById('val-temperature').innerText = data.temperature.toFixed(2) + ' °C';
+          if (data.humidity !== null) document.getElementById('val-humidity').innerText = data.humidity.toFixed(2) + ' %';
+          if (data.light !== null) document.getElementById('val-light').innerText = data.light.toFixed(2) + ' lx';
+        })
+        .catch(err => console.error('Error fetching latest data:', err));
+    }
+
+    function fetchHistoryData() {
+      fetch('/api/history/')
+        .then(response => response.json())
+        .then(data => {
+          // 更新表格
+          const tbody = document.getElementById('history-table-body');
+          tbody.innerHTML = '';
+          if (data.records && data.records.length > 0) {
+            data.records.forEach(record => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `<td>${record.timestamp}</td><td>${record.topic}</td><td>${record.value}</td>`;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">尚無資料</td></tr>';
+          }
+
+          // 更新圖表
+          if (data.chart_data) {
+            sensorChart.data.labels = data.chart_data.labels;
+            sensorChart.data.datasets[0].data = data.chart_data.temperature;
+            sensorChart.data.datasets[1].data = data.chart_data.humidity;
+            sensorChart.data.datasets[2].data = data.chart_data.light;
+            sensorChart.update();
+          }
+        })
+        .catch(err => console.error('Error fetching history data:', err));
+    }
+
+    // 啟動輪詢
+    setInterval(fetchLatestData, 1000);  // 每 1 秒更新最新數據
+    setInterval(fetchHistoryData, 5000); // 每 5 秒更新圖表與表格
+    
+    // 首次載入
+    fetchLatestData();
+    fetchHistoryData();
+  </script>
+</body>
+</html>
