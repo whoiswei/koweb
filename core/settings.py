@@ -77,7 +77,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "iot_personal_db",
+        "NAME": "iot_koweb_db",
         "USER": "root",
         "PASSWORD": "root123456",
         "HOST": "127.0.0.1",
