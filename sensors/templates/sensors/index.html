@@ -2,57 +2,95 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-width=1.0">
-  <title>物聯網個人專題網站</title>
-  <!-- 引入 XP.css 重現經典風格 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows XP - 物聯網個人專題</title>
+  <!-- XP.css 樣式表 -->
   <link rel="stylesheet" href="https://unpkg.com/xp.css">
-  <!-- 引入 Chart.js 用於繪圖 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      background-color: #3A6EA5; /* 經典 XP 藍底桌布色 */
-      padding: 20px;
+    /* 全域設定與桌布 */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif;
+      /* 經典 Bliss 桌布 */
+      background: url('https://upload.wikimedia.org/wikipedia/en/1/17/Bliss_%28Windows_XP%29.png') no-repeat center center fixed;
+      background-size: cover;
+      user-select: none;
+    }
+
+    /* 桌面圖示網格 */
+    .desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 30px); /* 扣掉工作列高度 */
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      padding: 10px;
+      gap: 15px;
+    }
+
+    .desktop-icon {
+      width: 70px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-    }
-    .window {
-      width: 80%;
-      max-width: 800px;
-      margin-bottom: 20px;
-    }
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      cursor: pointer;
       text-align: center;
     }
-    .data-box {
-      background: white;
-      border: 2px inset #dfdfdf;
-      padding: 10px;
+
+    .desktop-icon img {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 4px;
+      /* 加上簡單陰影增加立體感 */
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
     }
-    .data-value {
-      font-size: 2em;
-      font-weight: bold;
-      color: #000080;
+
+    .desktop-icon span {
+      color: white;
+      font-size: 11px;
+      text-shadow: 1px 1px 2px black;
+      padding: 2px 4px;
+      border: 1px dotted transparent;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+
+    /* 桌面圖示 hover & 點擊效果 */
+    .desktop-icon:hover span {
+      background-color: rgba(255, 255, 255, 0.2);
     }
-    th, td {
-      border: 1px solid #999;
-      padding: 5px;
-      text-align: left;
+    .desktop-icon.selected span {
+      background-color: #0b61ff;
+      border: 1px dotted #ffffff;
+      text-shadow: none;
     }
-    th {
-      background: #ece9d8;
+
+    /* 視窗樣式 (覆寫 XP.css 讓視窗可拖曳) */
+    .window {
+      position: absolute;
+      display: none; /* 預設隱藏 */
+      min-width: 300px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     }
-    /* XP Taskbar */
+
+    /* 確保標題列是游標可拖曳的樣式 */
+    .title-bar {
+      cursor: grab;
+    }
+    .title-bar:active {
+      cursor: grabbing;
+    }
+
+    /* 工作列 (Taskbar) */
     .taskbar {
-      position: fixed;
+      position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -60,11 +98,10 @@
       background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #333 100%);
       display: flex;
       align-items: center;
-      z-index: 1000;
-      padding: 0 5px;
-      box-sizing: border-box;
+      z-index: 9999;
       border-top: 1px solid #0055eb;
     }
+
     .start-button {
       background: linear-gradient(to bottom, #3f8cf3 0%, #245edb 100%);
       border: none;
@@ -72,101 +109,209 @@
       color: white;
       font-weight: bold;
       font-style: italic;
-      height: 28px;
-      padding: 0 15px;
+      font-size: 14px;
+      height: 30px;
+      padding: 0 20px 0 15px;
       display: flex;
       align-items: center;
       cursor: pointer;
       box-shadow: 2px 2px 3px rgba(0,0,0,0.5);
     }
+
     .start-button:hover {
       background: linear-gradient(to bottom, #5a9df6 0%, #3f8cf3 100%);
     }
+
+    .start-button img {
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
+    }
+
+    .task-area {
+      display: flex;
+      flex-grow: 1;
+      padding: 0 5px;
+      gap: 3px;
+    }
+
     .task-item {
       background: #3f8cf3;
       border: 1px solid #1a3b86;
       border-radius: 3px;
       color: white;
-      margin-left: 10px;
       padding: 2px 10px;
       cursor: pointer;
-      text-decoration: none;
-      font-size: 12px;
+      font-size: 11px;
       display: flex;
       align-items: center;
-      height: 20px;
+      min-width: 100px;
+      max-width: 150px;
+      height: 22px;
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
+    .task-item img {
+      width: 14px;
+      height: 14px;
+      margin-right: 5px;
+    }
+
     .task-item:hover {
       background: #5a9df6;
     }
+
+    .task-item.active {
+      background: #1c4a9e;
+      box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
+    }
+
+    /* 系統列 (右下角時鐘) */
+    .tray {
+      background: linear-gradient(to bottom, #0cb0ed 0%, #088ee3 100%);
+      height: 100%;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 11px;
+      border-left: 1px solid #1042af;
+      box-shadow: inset 1px 0 0 rgba(255,255,255,0.4);
+    }
+
+    /* 軟體內容客製化樣式 */
+    .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+    .data-box { background: white; border: 2px inset #dfdfdf; padding: 10px; }
+    .data-value { font-size: 2em; font-weight: bold; color: #000080; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #999; padding: 5px; text-align: left; font-size: 12px; }
+    th { background: #ece9d8; }
   </style>
 </head>
 <body>
 
-  <!-- 歡迎視窗 -->
-  <div class="window">
-    <div class="title-bar">
-      <div class="title-bar-text">個人資訊</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize"></button>
-        <button aria-label="Maximize"></button>
-        <button aria-label="Close"></button>
-      </div>
+  <!-- 桌面圖示區 -->
+  <div class="desktop" id="desktop">
+    <div class="desktop-icon" ondblclick="openWindow('win-computer')">
+      <!-- 經典 My Computer 圖示 -->
+      <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" alt="我的電腦">
+      <span>我的電腦</span>
     </div>
-    <div class="window-body">
-      <p>歡迎來到物聯網專題網站！</p>
-      <ul>
-        <li><strong>姓名：</strong> {{ name }}</li>
-        <li><strong>學號：</strong> {{ student_id }}</li>
-      </ul>
+    
+    <div class="desktop-icon" ondblclick="openWindow('win-sensors')">
+      <!-- 經典相機/感測器圖示 -->
+      <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png" alt="即時感測">
+      <span>即時感測</span>
+    </div>
+
+    <div class="desktop-icon" ondblclick="openWindow('win-chart')">
+      <!-- 經典圖表圖示 -->
+      <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" alt="歷史圖表">
+      <span>歷史圖表</span>
+    </div>
+
+    <div class="desktop-icon" ondblclick="openWindow('win-data')">
+      <!-- 經典文件資料夾圖示 -->
+      <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" alt="原始資料">
+      <span>原始資料</span>
     </div>
   </div>
 
-  <!-- 即時數據視窗 -->
-  <div class="window">
+  <!-- 視窗 1: 我的電腦 (個人資訊) -->
+  <div class="window" id="win-computer" style="top: 50px; left: 100px; width: 350px;">
     <div class="title-bar">
-      <div class="title-bar-text">即時感測器數據</div>
+      <div class="title-bar-text">
+        <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 我的電腦
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" onclick="toggleWindow('win-computer')"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close" onclick="closeWindow('win-computer')"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="display:flex; align-items:center; gap:15px; margin-bottom: 10px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/user_world-0.png" width="48">
+        <div>
+          <p style="margin:0 0 5px 0;"><strong>使用者資訊</strong></p>
+          <p style="margin:0;">姓名：{{ name }}</p>
+          <p style="margin:0;">學號：{{ student_id }}</p>
+        </div>
+      </div>
+      <p>專案：物聯網個人專題網站</p>
+      <a href="#" style="color: blue;">連線至組別總網站</a>
+    </div>
+  </div>
+
+  <!-- 視窗 2: 即時感測器數據 -->
+  <div class="window" id="win-sensors" style="top: 80px; left: 200px; width: 450px;">
+    <div class="title-bar">
+      <div class="title-bar-text">
+        <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 即時感測器監控
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" onclick="toggleWindow('win-sensors')"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close" onclick="closeWindow('win-sensors')"></button>
+      </div>
     </div>
     <div class="window-body">
       <div class="data-grid">
         <div class="data-box">
-          <div>溫度 (Temperature)</div>
+          <div>溫度</div>
           <div class="data-value" id="val-temperature">-- °C</div>
         </div>
         <div class="data-box">
-          <div>濕度 (Humidity)</div>
+          <div>濕度</div>
           <div class="data-value" id="val-humidity">-- %</div>
         </div>
         <div class="data-box">
-          <div>光照度 (Light)</div>
+          <div>光照度</div>
           <div class="data-value" id="val-light">-- lx</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 歷史圖表視窗 -->
-  <div class="window">
+  <!-- 視窗 3: 歷史折線圖 -->
+  <div class="window" id="win-chart" style="top: 110px; left: 300px; width: 500px;">
     <div class="title-bar">
-      <div class="title-bar-text">歷史數據折線圖</div>
+      <div class="title-bar-text">
+        <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 數據分析儀 (歷史圖表)
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" onclick="toggleWindow('win-chart')"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close" onclick="closeWindow('win-chart')"></button>
+      </div>
     </div>
-    <div class="window-body" style="background: white;">
-      <canvas id="sensorChart" height="100"></canvas>
+    <div class="window-body" style="background: white; padding: 0;">
+      <canvas id="sensorChart" style="padding: 10px;"></canvas>
     </div>
   </div>
 
-  <!-- 歷史表格視窗 -->
-  <div class="window" style="margin-bottom: 60px;">
+  <!-- 視窗 4: 原始數據表格 -->
+  <div class="window" id="win-data" style="top: 140px; left: 400px; width: 400px;">
     <div class="title-bar">
-      <div class="title-bar-text">原始數據檢視</div>
+      <div class="title-bar-text">
+        <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 資料庫檢視器
+      </div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize" onclick="toggleWindow('win-data')"></button>
+        <button aria-label="Maximize"></button>
+        <button aria-label="Close" onclick="closeWindow('win-data')"></button>
+      </div>
     </div>
-    <div class="window-body">
+    <div class="window-body" style="height: 250px; overflow-y: auto;">
       <table>
         <thead>
           <tr>
-            <th>時間 (Timestamp)</th>
-            <th>感測器 (Topic)</th>
-            <th>數值 (Value)</th>
+            <th>時間</th>
+            <th>主題 (Topic)</th>
+            <th>數值</th>
           </tr>
         </thead>
         <tbody id="history-table-body">
@@ -176,13 +321,153 @@
     </div>
   </div>
 
-  <!-- 工作列 (Navbar) -->
+  <!-- 底部工作列 -->
   <div class="taskbar">
-    <button class="start-button">開始</button>
-    <a href="#" class="task-item">組別總網站</a>
+    <button class="start-button">
+      <img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" alt="Windows Logo"> 開始
+    </button>
+    <!-- 工作列按鈕區 -->
+    <div class="task-area" id="task-area">
+      <!-- Javascript 動態插入 task-item -->
+    </div>
+    <!-- 系統列 (時鐘) -->
+    <div class="tray" id="clock">
+      12:00 PM
+    </div>
   </div>
 
   <script>
+    // ======= 視窗管理系統 (Window Manager) ======= //
+    let zIndexCounter = 100;
+    const windowTitles = {
+      'win-computer': '我的電腦',
+      'win-sensors': '即時感測器監控',
+      'win-chart': '數據分析儀',
+      'win-data': '資料庫檢視器'
+    };
+    const windowIcons = {
+      'win-computer': 'https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png',
+      'win-sensors': 'https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png',
+      'win-chart': 'https://win98icons.alexmeub.com/icons/png/chart1-1.png',
+      'win-data': 'https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png'
+    };
+
+    function bringToFront(winId) {
+      zIndexCounter++;
+      document.getElementById(winId).style.zIndex = zIndexCounter;
+      // 更新工作列狀態
+      document.querySelectorAll('.task-item').forEach(item => item.classList.remove('active'));
+      const taskItem = document.getElementById('task-' + winId);
+      if (taskItem) taskItem.classList.add('active');
+    }
+
+    function openWindow(winId) {
+      const win = document.getElementById(winId);
+      if (win.style.display === 'none' || win.style.display === '') {
+        win.style.display = 'block';
+        // 如果工作列還沒有按鈕，建立一個
+        if (!document.getElementById('task-' + winId)) {
+          const taskArea = document.getElementById('task-area');
+          const btn = document.createElement('div');
+          btn.className = 'task-item active';
+          btn.id = 'task-' + winId;
+          btn.innerHTML = `<img src="${windowIcons[winId]}"> ${windowTitles[winId]}`;
+          btn.onclick = () => toggleWindow(winId);
+          taskArea.appendChild(btn);
+        }
+      }
+      bringToFront(winId);
+    }
+
+    function closeWindow(winId) {
+      document.getElementById(winId).style.display = 'none';
+      const taskBtn = document.getElementById('task-' + winId);
+      if (taskBtn) taskBtn.remove();
+    }
+
+    function toggleWindow(winId) {
+      const win = document.getElementById(winId);
+      if (win.style.display === 'none') {
+        win.style.display = 'block';
+        bringToFront(winId);
+      } else {
+        // 如果目前是最上層，點擊工作列就最小化；如果不是最上層，就把它移到最上層
+        if (win.style.zIndex == zIndexCounter) {
+          win.style.display = 'none';
+          document.getElementById('task-' + winId).classList.remove('active');
+        } else {
+          bringToFront(winId);
+        }
+      }
+    }
+
+    // 實作拖曳功能 (Draggable)
+    document.querySelectorAll('.window').forEach(win => {
+      // 點擊視窗任意處都帶到最上層
+      win.addEventListener('mousedown', () => bringToFront(win.id));
+      
+      const titleBar = win.querySelector('.title-bar');
+      let isDragging = false, startX, startY, initialLeft, initialTop;
+
+      titleBar.addEventListener('mousedown', (e) => {
+        // 如果點到控制按鈕 (關閉、縮小)，不觸發拖曳
+        if(e.target.closest('.title-bar-controls')) return;
+        
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = win.offsetLeft;
+        initialTop = win.offsetTop;
+        document.body.style.userSelect = 'none'; // 防止拖曳時反白文字
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        win.style.left = `${initialLeft + dx}px`;
+        win.style.top = `${initialTop + dy}px`;
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        document.body.style.userSelect = '';
+      });
+    });
+
+    // 桌面點擊處理 (取消選取圖示)
+    document.getElementById('desktop').addEventListener('click', (e) => {
+      if (!e.target.closest('.desktop-icon')) {
+        document.querySelectorAll('.desktop-icon').forEach(icon => icon.classList.remove('selected'));
+      }
+    });
+
+    // 圖示單擊選取
+    document.querySelectorAll('.desktop-icon').forEach(icon => {
+      icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+        icon.classList.add('selected');
+      });
+    });
+
+    // 時鐘更新
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      let m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12; 
+      m = m < 10 ? '0' + m : m;
+      document.getElementById('clock').innerText = `${h}:${m} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+
+    // ======= 資料串接與圖表邏輯 (延續原有設定) ======= //
+    
     // 初始化 Chart.js
     const ctx = document.getElementById('sensorChart').getContext('2d');
     const sensorChart = new Chart(ctx, {
@@ -197,35 +482,36 @@
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
-          x: { display: true, title: { display: true, text: '時間' } },
-          y: { display: true, title: { display: true, text: '數值' } }
+          x: { display: true },
+          y: { display: true }
         }
       }
     });
 
     function fetchLatestData() {
       fetch('/api/latest/')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
           if (data.temperature !== null) document.getElementById('val-temperature').innerText = data.temperature.toFixed(2) + ' °C';
           if (data.humidity !== null) document.getElementById('val-humidity').innerText = data.humidity.toFixed(2) + ' %';
           if (data.light !== null) document.getElementById('val-light').innerText = data.light.toFixed(2) + ' lx';
         })
-        .catch(err => console.error('Error fetching latest data:', err));
+        .catch(err => console.error(err));
     }
 
     function fetchHistoryData() {
       fetch('/api/history/')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
           // 更新表格
           const tbody = document.getElementById('history-table-body');
           tbody.innerHTML = '';
           if (data.records && data.records.length > 0) {
-            data.records.forEach(record => {
+            data.records.forEach(r => {
               const tr = document.createElement('tr');
-              tr.innerHTML = `<td>${record.timestamp}</td><td>${record.topic}</td><td>${record.value}</td>`;
+              tr.innerHTML = `<td>${r.timestamp}</td><td>${r.topic}</td><td>${r.value}</td>`;
               tbody.appendChild(tr);
             });
           } else {
@@ -241,14 +527,11 @@
             sensorChart.update();
           }
         })
-        .catch(err => console.error('Error fetching history data:', err));
+        .catch(err => console.error(err));
     }
 
-    // 啟動輪詢
-    setInterval(fetchLatestData, 1000);  // 每 1 秒更新最新數據
-    setInterval(fetchHistoryData, 5000); // 每 5 秒更新圖表與表格
-    
-    // 首次載入
+    setInterval(fetchLatestData, 1000);
+    setInterval(fetchHistoryData, 5000);
     fetchLatestData();
     fetchHistoryData();
   </script>
