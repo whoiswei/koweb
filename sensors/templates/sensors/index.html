@@ -16,8 +16,8 @@
       height: 100%;
       overflow: hidden;
       font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif;
-      /* 經典 Bliss 桌布 */
-      background: url('https://upload.wikimedia.org/wikipedia/en/1/17/Bliss_%28Windows_XP%29.png') no-repeat center center fixed;
+      /* 經典 Bliss 桌布：改用 XP.css 官方 GitHub 穩定的圖片網址 */
+      background: url('https://raw.githubusercontent.com/botoxparty/XP.css/main/docs/assets/bliss.jpg') no-repeat center center fixed;
       background-size: cover;
       user-select: none;
     }
@@ -28,7 +28,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: calc(100% - 30px); /* 扣掉工作列高度 */
+      height: calc(100% - 30px);
       display: flex;
       flex-direction: column;
       flex-wrap: wrap;
@@ -50,7 +50,6 @@
       width: 32px;
       height: 32px;
       margin-bottom: 4px;
-      /* 加上簡單陰影增加立體感 */
       filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5));
     }
 
@@ -62,7 +61,6 @@
       border: 1px dotted transparent;
     }
 
-    /* 桌面圖示 hover & 點擊效果 */
     .desktop-icon:hover span {
       background-color: rgba(255, 255, 255, 0.2);
     }
@@ -72,23 +70,36 @@
       text-shadow: none;
     }
 
-    /* 視窗樣式 (覆寫 XP.css 讓視窗可拖曳) */
+    /* 視窗樣式 */
     .window {
       position: absolute;
-      display: none; /* 預設隱藏 */
+      display: none;
       min-width: 300px;
+      min-height: 150px;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+      /* 讓視窗可以從右下角拖拉改變大小 */
+      resize: both;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* 確保標題列是游標可拖曳的樣式 */
     .title-bar {
       cursor: grab;
+      flex-shrink: 0;
     }
     .title-bar:active {
       cursor: grabbing;
     }
+    
+    .window-body {
+      flex-grow: 1;
+      overflow: auto; /* 內容過多時捲動 */
+      margin: 0;
+      padding: 10px;
+    }
 
-    /* 工作列 (Taskbar) */
+    /* 工作列 */
     .taskbar {
       position: absolute;
       bottom: 0;
@@ -98,7 +109,7 @@
       background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #333 100%);
       display: flex;
       align-items: center;
-      z-index: 9999;
+      z-index: 10000;
       border-top: 1px solid #0055eb;
     }
 
@@ -118,8 +129,9 @@
       box-shadow: 2px 2px 3px rgba(0,0,0,0.5);
     }
 
-    .start-button:hover {
-      background: linear-gradient(to bottom, #5a9df6 0%, #3f8cf3 100%);
+    .start-button:hover, .start-button.active {
+      background: linear-gradient(to bottom, #1c4a9e 0%, #245edb 100%);
+      box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
     }
 
     .start-button img {
@@ -169,7 +181,6 @@
       box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
     }
 
-    /* 系統列 (右下角時鐘) */
     .tray {
       background: linear-gradient(to bottom, #0cb0ed 0%, #088ee3 100%);
       height: 100%;
@@ -180,6 +191,83 @@
       font-size: 11px;
       border-left: 1px solid #1042af;
       box-shadow: inset 1px 0 0 rgba(255,255,255,0.4);
+    }
+
+    /* 開始選單 (預設隱藏) */
+    .start-menu {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      width: 380px;
+      height: 480px;
+      background: white;
+      border: 1px solid #0055eb;
+      border-radius: 5px 5px 0 0;
+      display: none;
+      z-index: 10001;
+      box-shadow: 2px -2px 5px rgba(0,0,0,0.5);
+      flex-direction: column;
+    }
+    
+    .start-menu-header {
+      background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%);
+      height: 60px;
+      border-radius: 5px 5px 0 0;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 2px solid #ef8218;
+    }
+    .start-menu-header img {
+      width: 42px;
+      height: 42px;
+      border: 2px solid white;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    
+    .start-menu-body {
+      display: flex;
+      flex-grow: 1;
+      background: white;
+    }
+    .start-menu-left {
+      flex: 1;
+      padding: 5px;
+    }
+    .start-menu-right {
+      width: 150px;
+      background: #d3e5fa;
+      border-left: 1px solid #95bcee;
+      padding: 5px;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 5px;
+      cursor: pointer;
+      color: black;
+      text-decoration: none;
+    }
+    .menu-item:hover {
+      background: #2f71cd;
+      color: white;
+    }
+    .menu-item img {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
+    }
+    .start-menu-footer {
+      background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 10px;
     }
 
     /* 軟體內容客製化樣式 */
@@ -196,39 +284,69 @@
   <!-- 桌面圖示區 -->
   <div class="desktop" id="desktop">
     <div class="desktop-icon" ondblclick="openWindow('win-computer')">
-      <!-- 經典 My Computer 圖示 -->
       <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" alt="我的電腦">
       <span>我的電腦</span>
     </div>
     
     <div class="desktop-icon" ondblclick="openWindow('win-sensors')">
-      <!-- 經典相機/感測器圖示 -->
       <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png" alt="即時感測">
       <span>即時感測</span>
     </div>
 
     <div class="desktop-icon" ondblclick="openWindow('win-chart')">
-      <!-- 經典圖表圖示 -->
       <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" alt="歷史圖表">
       <span>歷史圖表</span>
     </div>
 
     <div class="desktop-icon" ondblclick="openWindow('win-data')">
-      <!-- 經典文件資料夾圖示 -->
       <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" alt="原始資料">
       <span>原始資料</span>
     </div>
   </div>
 
+  <!-- 開始選單 -->
+  <div class="start-menu" id="start-menu">
+    <div class="start-menu-header">
+      <img src="https://win98icons.alexmeub.com/icons/png/user_world-0.png" alt="User">
+      {{ name }}
+    </div>
+    <div class="start-menu-body">
+      <div class="start-menu-left">
+        <div class="menu-item" onclick="openWindow('win-computer'); toggleStartMenu();">
+          <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png"> 我的電腦
+        </div>
+        <div class="menu-item" onclick="openWindow('win-sensors'); toggleStartMenu();">
+          <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png"> 即時感測器監控
+        </div>
+        <div class="menu-item" onclick="openWindow('win-chart'); toggleStartMenu();">
+          <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png"> 歷史數據圖表
+        </div>
+        <div class="menu-item" onclick="openWindow('win-data'); toggleStartMenu();">
+          <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png"> 原始資料檢視
+        </div>
+      </div>
+      <div class="start-menu-right">
+        <div class="menu-item" onclick="window.location.reload();">
+          <img src="https://win98icons.alexmeub.com/icons/png/update-0.png"> 重新整理頁面
+        </div>
+      </div>
+    </div>
+    <div class="start-menu-footer">
+      <div class="menu-item" style="color:white; padding:0;" onclick="window.close();">
+        <img src="https://win98icons.alexmeub.com/icons/png/shut_down_cool-0.png"> 關機
+      </div>
+    </div>
+  </div>
+
   <!-- 視窗 1: 我的電腦 (個人資訊) -->
-  <div class="window" id="win-computer" style="top: 50px; left: 100px; width: 350px;">
+  <div class="window" id="win-computer" style="top: 50px; left: 100px; width: 350px; display: none;">
     <div class="title-bar">
       <div class="title-bar-text">
         <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 我的電腦
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" onclick="toggleWindow('win-computer')"></button>
-        <button aria-label="Maximize"></button>
+        <button aria-label="Maximize" onclick="maximizeWindow('win-computer')"></button>
         <button aria-label="Close" onclick="closeWindow('win-computer')"></button>
       </div>
     </div>
@@ -247,14 +365,14 @@
   </div>
 
   <!-- 視窗 2: 即時感測器數據 -->
-  <div class="window" id="win-sensors" style="top: 80px; left: 200px; width: 450px;">
+  <div class="window" id="win-sensors" style="top: 80px; left: 200px; width: 450px; display: none;">
     <div class="title-bar">
       <div class="title-bar-text">
         <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 即時感測器監控
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" onclick="toggleWindow('win-sensors')"></button>
-        <button aria-label="Maximize"></button>
+        <button aria-label="Maximize" onclick="maximizeWindow('win-sensors')"></button>
         <button aria-label="Close" onclick="closeWindow('win-sensors')"></button>
       </div>
     </div>
@@ -277,35 +395,35 @@
   </div>
 
   <!-- 視窗 3: 歷史折線圖 -->
-  <div class="window" id="win-chart" style="top: 110px; left: 300px; width: 500px;">
+  <div class="window" id="win-chart" style="top: 110px; left: 300px; width: 500px; height: 350px; display: none;">
     <div class="title-bar">
       <div class="title-bar-text">
-        <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 數據分析儀 (歷史圖表)
+        <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 數據分析儀
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" onclick="toggleWindow('win-chart')"></button>
-        <button aria-label="Maximize"></button>
+        <button aria-label="Maximize" onclick="maximizeWindow('win-chart')"></button>
         <button aria-label="Close" onclick="closeWindow('win-chart')"></button>
       </div>
     </div>
-    <div class="window-body" style="background: white; padding: 0;">
-      <canvas id="sensorChart" style="padding: 10px;"></canvas>
+    <div class="window-body" style="background: white;">
+      <canvas id="sensorChart"></canvas>
     </div>
   </div>
 
   <!-- 視窗 4: 原始數據表格 -->
-  <div class="window" id="win-data" style="top: 140px; left: 400px; width: 400px;">
+  <div class="window" id="win-data" style="top: 140px; left: 400px; width: 400px; height: 300px; display: none;">
     <div class="title-bar">
       <div class="title-bar-text">
         <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" style="width:12px; vertical-align:middle; margin-right:3px;"> 資料庫檢視器
       </div>
       <div class="title-bar-controls">
         <button aria-label="Minimize" onclick="toggleWindow('win-data')"></button>
-        <button aria-label="Maximize"></button>
+        <button aria-label="Maximize" onclick="maximizeWindow('win-data')"></button>
         <button aria-label="Close" onclick="closeWindow('win-data')"></button>
       </div>
     </div>
-    <div class="window-body" style="height: 250px; overflow-y: auto;">
+    <div class="window-body">
       <table>
         <thead>
           <tr>
@@ -323,21 +441,44 @@
 
   <!-- 底部工作列 -->
   <div class="taskbar">
-    <button class="start-button">
+    <button class="start-button" id="start-btn" onclick="toggleStartMenu(event)">
       <img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" alt="Windows Logo"> 開始
     </button>
-    <!-- 工作列按鈕區 -->
     <div class="task-area" id="task-area">
-      <!-- Javascript 動態插入 task-item -->
+      <!-- 動態按鈕 -->
     </div>
-    <!-- 系統列 (時鐘) -->
     <div class="tray" id="clock">
       12:00 PM
     </div>
   </div>
 
   <script>
-    // ======= 視窗管理系統 (Window Manager) ======= //
+    // ======= 開始選單 ======= //
+    function toggleStartMenu(e) {
+      if(e) e.stopPropagation();
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-btn');
+      if (menu.style.display === 'flex') {
+        menu.style.display = 'none';
+        btn.classList.remove('active');
+      } else {
+        menu.style.display = 'flex';
+        btn.classList.add('active');
+        bringToFront('start-menu', true); // 讓開始選單在最上層
+      }
+    }
+
+    // 點擊桌面任何地方關閉開始選單
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-btn');
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+        btn.classList.remove('active');
+      }
+    });
+
+    // ======= 視窗管理系統 ======= //
     let zIndexCounter = 100;
     const windowTitles = {
       'win-computer': '我的電腦',
@@ -352,20 +493,20 @@
       'win-data': 'https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png'
     };
 
-    function bringToFront(winId) {
+    function bringToFront(winId, isMenu=false) {
       zIndexCounter++;
       document.getElementById(winId).style.zIndex = zIndexCounter;
-      // 更新工作列狀態
-      document.querySelectorAll('.task-item').forEach(item => item.classList.remove('active'));
-      const taskItem = document.getElementById('task-' + winId);
-      if (taskItem) taskItem.classList.add('active');
+      if(!isMenu) {
+        document.querySelectorAll('.task-item').forEach(item => item.classList.remove('active'));
+        const taskItem = document.getElementById('task-' + winId);
+        if (taskItem) taskItem.classList.add('active');
+      }
     }
 
     function openWindow(winId) {
       const win = document.getElementById(winId);
       if (win.style.display === 'none' || win.style.display === '') {
-        win.style.display = 'block';
-        // 如果工作列還沒有按鈕，建立一個
+        win.style.display = 'flex'; // Use flex for window inner layout
         if (!document.getElementById('task-' + winId)) {
           const taskArea = document.getElementById('task-area');
           const btn = document.createElement('div');
@@ -388,10 +529,9 @@
     function toggleWindow(winId) {
       const win = document.getElementById(winId);
       if (win.style.display === 'none') {
-        win.style.display = 'block';
+        win.style.display = 'flex';
         bringToFront(winId);
       } else {
-        // 如果目前是最上層，點擊工作列就最小化；如果不是最上層，就把它移到最上層
         if (win.style.zIndex == zIndexCounter) {
           win.style.display = 'none';
           document.getElementById('task-' + winId).classList.remove('active');
@@ -401,24 +541,49 @@
       }
     }
 
-    // 實作拖曳功能 (Draggable)
+    // 放大/還原視窗
+    function maximizeWindow(winId) {
+      const win = document.getElementById(winId);
+      if (!win.dataset.maximized || win.dataset.maximized === 'false') {
+        // 儲存原本的大小與位置
+        win.dataset.prevTop = win.style.top;
+        win.dataset.prevLeft = win.style.left;
+        win.dataset.prevWidth = win.style.width || win.offsetWidth + 'px';
+        win.dataset.prevHeight = win.style.height || win.offsetHeight + 'px';
+        
+        win.style.top = '0';
+        win.style.left = '0';
+        win.style.width = '100%';
+        win.style.height = 'calc(100% - 30px)';
+        win.dataset.maximized = 'true';
+      } else {
+        // 還原
+        win.style.top = win.dataset.prevTop;
+        win.style.left = win.dataset.prevLeft;
+        win.style.width = win.dataset.prevWidth;
+        win.style.height = win.dataset.prevHeight;
+        win.dataset.maximized = 'false';
+      }
+      bringToFront(winId);
+    }
+
+    // 視窗拖曳功能
     document.querySelectorAll('.window').forEach(win => {
-      // 點擊視窗任意處都帶到最上層
       win.addEventListener('mousedown', () => bringToFront(win.id));
       
       const titleBar = win.querySelector('.title-bar');
       let isDragging = false, startX, startY, initialLeft, initialTop;
 
       titleBar.addEventListener('mousedown', (e) => {
-        // 如果點到控制按鈕 (關閉、縮小)，不觸發拖曳
         if(e.target.closest('.title-bar-controls')) return;
+        if(win.dataset.maximized === 'true') return; // 最大化時不允許拖曳
         
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
         initialLeft = win.offsetLeft;
         initialTop = win.offsetTop;
-        document.body.style.userSelect = 'none'; // 防止拖曳時反白文字
+        document.body.style.userSelect = 'none';
       });
 
       window.addEventListener('mousemove', (e) => {
@@ -435,14 +600,13 @@
       });
     });
 
-    // 桌面點擊處理 (取消選取圖示)
+    // 桌面點擊處理
     document.getElementById('desktop').addEventListener('click', (e) => {
       if (!e.target.closest('.desktop-icon')) {
         document.querySelectorAll('.desktop-icon').forEach(icon => icon.classList.remove('selected'));
       }
     });
 
-    // 圖示單擊選取
     document.querySelectorAll('.desktop-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -466,9 +630,7 @@
     updateClock();
 
 
-    // ======= 資料串接與圖表邏輯 (延續原有設定) ======= //
-    
-    // 初始化 Chart.js
+    // ======= 資料串接 ======= //
     const ctx = document.getElementById('sensorChart').getContext('2d');
     const sensorChart = new Chart(ctx, {
       type: 'line',
@@ -483,10 +645,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: { display: true },
-          y: { display: true }
-        }
+        scales: { x: { display: true }, y: { display: true } }
       }
     });
 
@@ -505,7 +664,6 @@
       fetch('/api/history/')
         .then(res => res.json())
         .then(data => {
-          // 更新表格
           const tbody = document.getElementById('history-table-body');
           tbody.innerHTML = '';
           if (data.records && data.records.length > 0) {
@@ -517,8 +675,6 @@
           } else {
             tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">尚無資料</td></tr>';
           }
-
-          // 更新圖表
           if (data.chart_data) {
             sensorChart.data.labels = data.chart_data.labels;
             sensorChart.data.datasets[0].data = data.chart_data.temperature;
