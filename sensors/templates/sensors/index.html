@@ -11,7 +11,6 @@
     body, html {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
       font-family: Tahoma, 'Segoe UI', Geneva, Verdana, sans-serif;
-      /* 使用本地上傳的 bliss.png，加上 background-size: cover 填滿螢幕 */
       background: url('{% static "sensors/bliss.png" %}') no-repeat center center fixed;
       background-color: #3a6ea5; 
       background-size: cover;
@@ -25,10 +24,7 @@
       padding: 10px; gap: 15px;
     }
 
-    .desktop-icon {
-      width: 70px; display: flex; flex-direction: column; align-items: center;
-      cursor: pointer; text-align: center;
-    }
+    .desktop-icon { width: 70px; display: flex; flex-direction: column; align-items: center; cursor: pointer; text-align: center; }
     .desktop-icon img { width: 32px; height: 32px; margin-bottom: 4px; filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.5)); }
     .desktop-icon span { color: white; font-size: 11px; text-shadow: 1px 1px 2px black; padding: 2px 4px; border: 1px dotted transparent; }
     .desktop-icon:hover span { background-color: rgba(255, 255, 255, 0.2); }
@@ -38,11 +34,27 @@
     .window {
       position: absolute; display: none; min-width: 300px; min-height: 150px;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.5); resize: both; overflow: hidden;
-      display: flex; flex-direction: column; box-sizing: border-box;
+      box-sizing: border-box;
     }
+    .window.is-open { display: flex; flex-direction: column; }
+    
     .title-bar { cursor: grab; flex-shrink: 0; }
     .title-bar:active { cursor: grabbing; }
     .window-body { flex-grow: 1; overflow: auto; margin: 0; padding: 10px; box-sizing: border-box; }
+
+    /* 選單列下拉樣式 (檔案/編輯等) */
+    .menu-bar { display: flex; gap: 5px; background: #ece9d8; padding: 2px 5px; border-bottom: 1px solid #dfdfdf; font-size: 12px; }
+    .menu-item-wrapper { position: relative; padding: 2px 6px; cursor: default; }
+    .menu-item-wrapper:hover { background: #316ac5; color: white; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; left: 0; background: #ece9d8;
+      border: 1px solid #999; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); z-index: 1000;
+      min-width: 120px; flex-direction: column; color: black; padding: 2px;
+    }
+    .menu-item-wrapper:hover .dropdown-menu { display: flex; }
+    .dropdown-item { padding: 4px 15px; cursor: pointer; }
+    .dropdown-item:hover { background: #316ac5; color: white; }
+    .dropdown-separator { height: 1px; background: #999; margin: 2px 0; border-bottom: 1px solid white; }
 
     /* 工作列 */
     .taskbar {
@@ -53,30 +65,25 @@
 
     /* 經典 XP 綠色開始按鈕 */
     .start-button {
-      background: linear-gradient(to bottom, #42a921 0%, #348419 100%);
-      border: none; border-radius: 0 10px 10px 0; color: white; font-weight: bold; font-style: italic;
-      font-size: 14px; height: 30px; padding: 0 20px 0 15px; display: flex; align-items: center; cursor: pointer;
-      box-shadow: 2px 2px 3px rgba(0,0,0,0.5);
+      background: linear-gradient(to bottom, #42a921 0%, #348419 100%); border: none; border-radius: 0 10px 10px 0;
+      color: white; font-weight: bold; font-style: italic; font-size: 14px; height: 30px; padding: 0 20px 0 15px;
+      display: flex; align-items: center; cursor: pointer; box-shadow: 2px 2px 3px rgba(0,0,0,0.5);
     }
     .start-button:hover, .start-button.active {
-      background: linear-gradient(to bottom, #348419 0%, #286313 100%);
-      box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
+      background: linear-gradient(to bottom, #348419 0%, #286313 100%); box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5);
     }
     .start-button img { width: 16px; height: 16px; margin-right: 5px; filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.8)); }
 
-    .task-area { display: flex; flex-grow: 1; padding: 0 5px; gap: 3px; }
+    .task-area { display: flex; flex-grow: 1; padding: 0 5px; gap: 3px; overflow: hidden; }
     .task-item {
       background: #3f8cf3; border: 1px solid #1a3b86; border-radius: 3px; color: white; padding: 2px 10px;
-      cursor: pointer; font-size: 11px; display: flex; align-items: center; min-width: 100px; max-width: 150px;
+      cursor: pointer; font-size: 11px; display: flex; align-items: center; min-width: 80px; max-width: 150px;
       height: 22px; box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .task-item img { width: 14px; height: 14px; margin-right: 5px; }
     .task-item:hover { background: #5a9df6; }
     .task-item.active { background: #1c4a9e; box-shadow: inset 2px 2px 3px rgba(0,0,0,0.5); }
-    .tray {
-      background: linear-gradient(to bottom, #0cb0ed 0%, #088ee3 100%); height: 100%; padding: 0 10px; display: flex;
-      align-items: center; color: white; font-size: 11px; border-left: 1px solid #1042af; box-shadow: inset 1px 0 0 rgba(255,255,255,0.4);
-    }
+    .tray { background: linear-gradient(to bottom, #0cb0ed 0%, #088ee3 100%); height: 100%; padding: 0 10px; display: flex; align-items: center; color: white; font-size: 11px; border-left: 1px solid #1042af; box-shadow: inset 1px 0 0 rgba(255,255,255,0.4); }
 
     /* 開始選單 */
     .start-menu {
@@ -84,10 +91,7 @@
       border: 1px solid #0055eb; border-radius: 5px 5px 0 0; display: none; z-index: 10001;
       box-shadow: 2px -2px 5px rgba(0,0,0,0.5); flex-direction: column;
     }
-    .start-menu-header {
-      background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%); height: 60px; border-radius: 5px 5px 0 0;
-      display: flex; align-items: center; padding: 0 10px; color: white; font-size: 16px; font-weight: bold; border-bottom: 2px solid #ef8218;
-    }
+    .start-menu-header { background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%); height: 60px; border-radius: 5px 5px 0 0; display: flex; align-items: center; padding: 0 10px; color: white; font-size: 16px; font-weight: bold; border-bottom: 2px solid #ef8218; }
     .start-menu-header img { width: 42px; height: 42px; border: 2px solid white; border-radius: 5px; margin-right: 10px; }
     .start-menu-body { display: flex; flex-grow: 1; background: white; }
     .start-menu-left { flex: 1; padding: 5px; }
@@ -95,10 +99,7 @@
     .menu-item { display: flex; align-items: center; padding: 8px 5px; cursor: pointer; color: black; text-decoration: none; }
     .menu-item:hover { background: #2f71cd; color: white; }
     .menu-item img { width: 24px; height: 24px; margin-right: 10px; }
-    .start-menu-footer {
-      background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%); height: 40px; display: flex;
-      align-items: center; justify-content: flex-end; padding: 0 10px;
-    }
+    .start-menu-footer { background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 100%); height: 40px; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; }
 
     /* 軟體內容客製化樣式 */
     .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
@@ -108,79 +109,77 @@
     th, td { border: 1px solid #999; padding: 5px; text-align: left; font-size: 12px; }
     th { background: #ece9d8; }
 
-    /* 小算盤樣式修復 */
-    #win-calc { min-width: 280px !important; }
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
-    .calc-grid button { padding: 10px 0; font-size: 14px; font-weight: bold; }
-    .calc-display {
-      background: white; border: 2px inset #dfdfdf; padding: 5px; text-align: right;
-      font-size: 24px; font-family: 'Courier New', Courier, monospace; margin-bottom: 5px; height: 35px; overflow: hidden;
-    }
+    /* 小算盤樣式完美版 */
+    #win-calc { min-width: 250px; max-width: 280px; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #ece9d8; }
+    .calc-grid button { padding: 8px 0; font-size: 14px; font-weight: bold; border: 2px outset #fff; background: #ece9d8; cursor: pointer; }
+    .calc-grid button:active { border: 2px inset #fff; }
+    .calc-display { background: white; border: 2px inset #dfdfdf; padding: 5px; text-align: right; font-size: 24px; font-family: 'Courier New', Courier, monospace; height: 35px; overflow: hidden; margin: 10px 10px 0 10px;}
 
     /* 關機對話框 */
-    .shutdown-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-      z-index: 100000; display: none; align-items: center; justify-content: center;
-    }
-    .shutdown-dialog {
-      width: 400px; height: 250px; background: #003399; display: flex; flex-direction: column;
-      border: 2px solid white; color: white; font-family: Tahoma;
-    }
+    .shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100000; display: none; align-items: center; justify-content: center; }
+    .shutdown-dialog { width: 350px; height: 220px; background: #003399; display: flex; flex-direction: column; border: 2px solid white; color: white; font-family: Tahoma; }
     .shutdown-header { padding: 10px; font-size: 20px; border-bottom: 1px solid white; display:flex; justify-content: space-between; }
-    .shutdown-body { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; background: #5a7edc; }
-    .shutdown-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: white; opacity: 0.8;}
+    .shutdown-body { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; background: linear-gradient(to right, #5a7edc 0%, #3e62c1 100%); }
+    .shutdown-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: white; opacity: 0.8; font-size: 12px; }
     .shutdown-btn:hover { opacity: 1; }
-    .shutdown-btn img { width: 48px; height: 48px; margin-bottom: 5px; }
+    .shutdown-btn img { width: 48px; height: 48px; margin-bottom: 5px; background: #003399; border-radius: 5px; border: 1px solid white; padding: 5px;}
+
+    /* 開關機/動畫遮罩 */
+    #system-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
+    #power-button { display: none; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #555 0%, #222 100%); border: 3px solid #777; cursor: pointer; align-items: center; justify-content: center; font-size: 40px; color: #0f0; box-shadow: 0 0 20px #0f0; }
+    #power-button:hover { box-shadow: 0 0 40px #0f0; background: radial-gradient(circle, #666 0%, #333 100%); }
+    #boot-logo { display: none; text-align: center; }
+    .boot-bar-container { width: 250px; height: 15px; border: 2px solid white; border-radius: 5px; overflow: hidden; margin: 30px auto; background: #111; position: relative;}
+    .boot-bar { width: 50px; height: 100%; background: linear-gradient(to right, #245edb, #3f8cf3, #245edb); position: absolute; animation: slide 2s infinite linear; }
+    @keyframes slide { 0% { left: -50px; } 100% { left: 250px; } }
 
     /* 桌面破壞器 Canvas */
-    #destroyer-canvas {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99998;
-      display: none; cursor: crosshair; pointer-events: auto;
-    }
+    #destroyer-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99998; display: none; cursor: crosshair; pointer-events: auto; }
 
     /* XP 小狗 Rover */
-    .rover {
-      position: absolute; bottom: 40px; right: 20px; z-index: 9999; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .rover-bubble {
-      background: #ffffe1; border: 1px solid black; padding: 10px; border-radius: 10px;
-      font-size: 12px; color: black; margin-bottom: 5px; display: none; width: 150px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    }
+    .rover { position: absolute; bottom: 40px; right: 20px; z-index: 9999; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+    .rover-bubble { background: #ffffe1; border: 1px solid black; padding: 10px; border-radius: 10px; font-size: 12px; color: black; margin-bottom: 5px; display: none; width: 180px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+    .rover-bubble::after { content: ''; position: absolute; bottom: 65px; right: 35px; border-width: 10px 10px 0; border-style: solid; border-color: #ffffe1 transparent transparent; display: block; width: 0; }
+    .rover-bubble::before { content: ''; position: absolute; bottom: 63px; right: 35px; border-width: 11px 11px 0; border-style: solid; border-color: black transparent transparent; display: block; width: 0; }
+    
+    /* 踩地雷自訂義 */
+    .ms-cell { width: 20px; height: 20px; background: #c0c0c0; border: 2px outset #fff; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; cursor: pointer; user-select: none; }
+    .ms-cell.revealed { border: 1px solid #777; background: #ddd; cursor: default; }
   </style>
 </head>
 <body>
+
+  <!-- 系統底層遮罩 (開關機) -->
+  <div id="system-overlay">
+    <div id="system-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Windows is shutting down...</div>
+    <div id="power-button" onclick="bootUp()">⏻</div>
+    <div id="boot-logo">
+      <h1 style="font-family: Tahoma; font-style: italic; font-size: 48px; margin:0;">Microsoft Windows <span style="color:#ef8218;">XP</span></h1>
+      <div class="boot-bar-container"><div class="boot-bar"></div></div>
+    </div>
+  </div>
 
   <!-- 桌面破壞畫布 -->
   <canvas id="destroyer-canvas"></canvas>
 
   <!-- XP 小狗 -->
   <div class="rover" onclick="toggleRoverBubble()">
-    <div class="rover-bubble" id="rover-bubble">汪汪！目前系統感測器運作正常！雙擊桌面圖示可以開啟視窗喔！</div>
-    <img src="https://win98icons.alexmeub.com/icons/png/search_computer-1.png" width="48" alt="Rover">
+    <div class="rover-bubble" id="rover-bubble"></div>
+    <img src="https://media1.tenor.com/m/Q8tE1rG7fCEAAAAd/rover-windows.gif" width="70" alt="Rover">
   </div>
 
   <!-- 關機畫面 -->
   <div class="shutdown-overlay" id="shutdown-overlay">
     <div class="shutdown-dialog">
-      <div class="shutdown-header">
-        <span>Turn off computer</span>
-        <img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" width="24" height="24">
-      </div>
+      <div class="shutdown-header"><span>Turn off computer</span><img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" width="24" height="24"></div>
       <div class="shutdown-body">
-        <div class="shutdown-btn" onclick="alert('進入待命模式...')">
-          <img src="https://win98icons.alexmeub.com/icons/png/standby-0.png"> Stand By
-        </div>
-        <div class="shutdown-btn" onclick="document.body.innerHTML='<div style=\'background:black;color:white;height:100vh;display:flex;align-items:center;justify-content:center;font-size:30px;\'>It is now safe to turn off your computer.</div>';">
-          <img src="https://win98icons.alexmeub.com/icons/png/shut_down_cool-0.png"> Turn Off
-        </div>
-        <div class="shutdown-btn" onclick="location.reload()">
-          <img src="https://win98icons.alexmeub.com/icons/png/update-1.png"> Restart
-        </div>
+        <div class="shutdown-btn" onclick="executePowerAction('standby')"><img src="https://win98icons.alexmeub.com/icons/png/standby-0.png"> Stand By</div>
+        <div class="shutdown-btn" onclick="executePowerAction('shutdown')"><img src="https://win98icons.alexmeub.com/icons/png/shut_down_cool-0.png"> Turn Off</div>
+        <div class="shutdown-btn" onclick="executePowerAction('restart')"><img src="https://win98icons.alexmeub.com/icons/png/update-0.png"> Restart</div>
       </div>
-      <div style="background:#003399; height: 30px; display:flex; justify-content:flex-end; padding: 5px 10px;">
-        <button onclick="document.getElementById('shutdown-overlay').style.display='none'">Cancel</button>
+      <div style="background:#003399; height: 35px; display:flex; justify-content:flex-end; align-items:center; padding: 0 10px;">
+        <button style="padding: 2px 15px; cursor: pointer;" onclick="document.getElementById('shutdown-overlay').style.display='none'">Cancel</button>
       </div>
     </div>
   </div>
@@ -191,7 +190,7 @@
       <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png"><span>我的電腦</span>
     </div>
     <div class="desktop-icon" ondblclick="openWindow('win-sensors')">
-      <img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png"><span>即時感測</span>
+      <img src="https://win98icons.alexmeub.com/icons/png/camera3-0.png"><span>即時感測</span>
     </div>
     <div class="desktop-icon" ondblclick="openWindow('win-chart')">
       <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png"><span>歷史圖表</span>
@@ -218,13 +217,11 @@
 
   <!-- 開始選單 -->
   <div class="start-menu" id="start-menu">
-    <div class="start-menu-header">
-      <img src="https://win98icons.alexmeub.com/icons/png/user_world-0.png"> {{ name }}
-    </div>
+    <div class="start-menu-header"><img src="https://win98icons.alexmeub.com/icons/png/user_world-0.png"> {{ name|default:"訪客" }}</div>
     <div class="start-menu-body">
       <div class="start-menu-left">
         <div class="menu-item" onclick="openWindow('win-computer'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png"> 我的電腦</div>
-        <div class="menu-item" onclick="openWindow('win-sensors'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png"> 即時感測器監控</div>
+        <div class="menu-item" onclick="openWindow('win-sensors'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/camera3-0.png"> 即時感測器監控</div>
         <div class="menu-item" onclick="openWindow('win-chart'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png"> 歷史數據圖表</div>
         <div class="menu-item" onclick="openWindow('win-data'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png"> 原始資料檢視</div>
         <hr>
@@ -234,7 +231,7 @@
         <div class="menu-item" onclick="openWindow('win-calc'); toggleStartMenu();"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png"> 小算盤 (Calculator)</div>
       </div>
       <div class="start-menu-right">
-        <div class="menu-item" onclick="window.location.reload();"><img src="https://win98icons.alexmeub.com/icons/png/world-1.png"> 重新整理頁面</div>
+        <div class="menu-item" onclick="window.location.reload();"><img src="https://win98icons.alexmeub.com/icons/png/world-0.png"> 重新整理頁面</div>
       </div>
     </div>
     <div class="start-menu-footer">
@@ -246,22 +243,17 @@
 
   <!-- 視窗 1: 我的電腦 -->
   <div class="window" id="win-computer" style="top: 50px; left: 100px; width: 350px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" style="width:12px; margin-right:3px;"> 我的電腦</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-computer')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-computer')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-computer')"></button>
-      </div>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" style="width:12px; margin-right:3px;"> 我的電腦</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-computer')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-computer')"></button><button aria-label="Close" onclick="closeWindow('win-computer')"></button></div>
+    </div>
+    <div class="menu-bar">
+      <div class="menu-item-wrapper">檔案(F)<div class="dropdown-menu"><div class="dropdown-item" onclick="closeWindow('win-computer')">關閉(C)</div></div></div>
+      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="alert('物聯網個人專題展示系統')">關於(A)</div></div></div>
     </div>
     <div class="window-body">
       <div style="display:flex; align-items:center; gap:15px; margin-bottom: 10px;">
         <img src="https://win98icons.alexmeub.com/icons/png/user_world-0.png" width="48">
-        <div>
-          <p style="margin:0 0 5px 0;"><strong>使用者資訊</strong></p>
-          <p style="margin:0;">姓名：{{ name }}</p>
-          <p style="margin:0;">學號：{{ student_id }}</p>
-        </div>
+        <div><p style="margin:0 0 5px 0;"><strong>使用者資訊</strong></p><p style="margin:0;">姓名：{{ name|default:"訪客" }}</p><p style="margin:0;">學號：{{ student_id|default:"N/A" }}</p></div>
       </div>
       <p>專案：物聯網個人專題網站</p>
       <a href="#" style="color: blue;" onclick="alert('即將連結至組別網站...')">連線至組別總網站</a>
@@ -270,13 +262,8 @@
 
   <!-- 視窗 2: 即時感測 -->
   <div class="window" id="win-sensors" style="top: 80px; left: 150px; width: 450px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png" style="width:12px; margin-right:3px;"> 即時感測器監控</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-sensors')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-sensors')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-sensors')"></button>
-      </div>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/camera3-0.png" style="width:12px; margin-right:3px;"> 即時感測器監控</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-sensors')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-sensors')"></button><button aria-label="Close" onclick="closeWindow('win-sensors')"></button></div>
     </div>
     <div class="window-body">
       <div class="data-grid">
@@ -289,255 +276,320 @@
 
   <!-- 視窗 3: 歷史圖表 -->
   <div class="window" id="win-chart" style="top: 110px; left: 200px; width: 500px; height: 350px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" style="width:12px; margin-right:3px;"> 數據分析儀</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-chart')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-chart')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-chart')"></button>
-      </div>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png" style="width:12px; margin-right:3px;"> 數據分析儀</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-chart')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-chart')"></button><button aria-label="Close" onclick="closeWindow('win-chart')"></button></div>
     </div>
-    <div class="window-body" style="background: white;">
-      <canvas id="sensorChart"></canvas>
-    </div>
+    <div class="window-body" style="background: white;"><canvas id="sensorChart"></canvas></div>
   </div>
 
   <!-- 視窗 4: 原始數據 -->
   <div class="window" id="win-data" style="top: 140px; left: 250px; width: 400px; height: 300px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" style="width:12px; margin-right:3px;"> 資料庫檢視器</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-data')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-data')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-data')"></button>
-      </div>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" style="width:12px; margin-right:3px;"> 資料庫檢視器</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-data')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-data')"></button><button aria-label="Close" onclick="closeWindow('win-data')"></button></div>
     </div>
     <div class="window-body">
-      <table>
-        <thead><tr><th>時間</th><th>主題 (Topic)</th><th>數值</th></tr></thead>
-        <tbody id="history-table-body"><tr><td colspan="3" style="text-align: center;">載入中...</td></tr></tbody>
-      </table>
+      <table><thead><tr><th>時間</th><th>主題 (Topic)</th><th>數值</th></tr></thead><tbody id="history-table-body"><tr><td colspan="3" style="text-align: center;">載入中...</td></tr></tbody></table>
     </div>
   </div>
 
   <!-- 視窗 5: 記事本 -->
   <div class="window" id="win-notepad" style="top: 170px; left: 300px; width: 400px; height: 300px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png" style="width:12px; margin-right:3px;"> 未命名 - 記事本</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-notepad')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-notepad')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-notepad')"></button>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png" style="width:12px; margin-right:3px;"> 未命名 - 記事本</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-notepad')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-notepad')"></button><button aria-label="Close" onclick="closeWindow('win-notepad')"></button></div>
+    </div>
+    <div class="menu-bar">
+      <div class="menu-item-wrapper">檔案(F)
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onclick="alert('檔案已成功儲存至虛擬空間！')">儲存(S)</div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onclick="closeWindow('win-notepad')">結束(X)</div>
+        </div>
+      </div>
+      <div class="menu-item-wrapper">編輯(E)
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onclick="document.getElementById('notepad-ta').value=''">清除(C)</div>
+        </div>
+      </div>
+      <div class="menu-item-wrapper">說明(H)
+        <div class="dropdown-menu"><div class="dropdown-item" onclick="alert('網頁版記事本 v1.0')">關於記事本(A)</div></div>
       </div>
     </div>
-    <div style="background: #ece9d8; padding: 2px 5px; border-bottom: 1px solid #dfdfdf; font-size: 12px; display:flex; gap:10px;">
-      <span style="cursor:pointer;" onclick="alert('檔案儲存功能未開放')">檔案(F)</span>
-      <span style="cursor:pointer;" onclick="alert('編輯功能')">編輯(E)</span>
-      <span style="cursor:pointer;" onclick="alert('格式設定')">格式(O)</span>
-      <span style="cursor:pointer;" onclick="alert('記事本版本: 1.0')">說明(H)</span>
-    </div>
     <div class="window-body" style="padding: 0; display: flex;">
-      <textarea style="flex-grow: 1; border: none; outline: none; padding: 5px; font-family: 'Courier New', Courier, monospace; font-size: 14px; resize: none;"></textarea>
+      <textarea id="notepad-ta" style="flex-grow: 1; border: none; outline: none; padding: 5px; font-family: 'Courier New', Courier, monospace; font-size: 14px; resize: none;"></textarea>
     </div>
   </div>
 
   <!-- 視窗 6: 小算盤 -->
-  <div class="window" id="win-calc" style="top: 200px; left: 350px; width: 280px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png" style="width:12px; margin-right:3px;"> 小算盤</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-calc')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-calc')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-calc')"></button>
-      </div>
+  <div class="window" id="win-calc" style="top: 200px; left: 350px;">
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png" style="width:12px; margin-right:3px;"> 小算盤</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-calc')"></button><button aria-label="Close" onclick="closeWindow('win-calc')"></button></div>
     </div>
-    <div style="background: #ece9d8; padding: 2px 5px; font-size: 12px; display:flex; gap:10px;">
-      <span style="cursor:pointer;" onclick="alert('編輯(E)')">編輯(E)</span>
-      <span style="cursor:pointer;" onclick="alert('檢視(V)')">檢視(V)</span>
-      <span style="cursor:pointer;" onclick="alert('說明(H)')">說明(H)</span>
+    <div class="menu-bar">
+      <div class="menu-item-wrapper">編輯(E)<div class="dropdown-menu"><div class="dropdown-item" onclick="calcClear()">清除(C)</div></div></div>
+      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="alert('這是一個可以正常運作的小算盤喔！')">關於(A)</div></div></div>
     </div>
-    <div class="window-body">
-      <div class="calc-display" id="calc-display">0</div>
-      <div class="calc-grid">
-        <button onclick="calcClear()">C</button><button onclick="calcClear()">CE</button><button onclick="calcOp('%')">%</button><button onclick="calcOp('/')">/</button>
-        <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcOp('*')">*</button>
-        <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcOp('-')">-</button>
-        <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcOp('+')">+</button>
-        <button onclick="calcInput('0')" style="grid-column: span 2;">0</button><button onclick="calcInput('.')">.</button><button onclick="calcEval()">=</button>
-      </div>
+    <div class="calc-display" id="calc-display">0</div>
+    <div class="calc-grid">
+      <button onclick="calcClear()">C</button><button onclick="calcClear()">CE</button><button onclick="calcOp('%')">%</button><button onclick="calcOp('/')">/</button>
+      <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcOp('*')">*</button>
+      <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcOp('-')">-</button>
+      <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcOp('+')">+</button>
+      <button onclick="calcInput('0')" style="grid-column: span 2;">0</button><button onclick="calcInput('.')">.</button><button onclick="calcEval()">=</button>
     </div>
   </div>
 
   <!-- 視窗 7: 小畫家 -->
   <div class="window" id="win-paint" style="top: 230px; left: 400px; width: 500px; height: 400px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/paint_file-1.png" style="width:12px; margin-right:3px;"> 未命名 - 小畫家</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-paint')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-paint')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-paint')"></button>
-      </div>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/paint_file-1.png" style="width:12px; margin-right:3px;"> 未命名 - 小畫家</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-paint')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-paint')"></button><button aria-label="Close" onclick="closeWindow('win-paint')"></button></div>
     </div>
-    <div style="background: #ece9d8; padding: 2px 5px; border-bottom: 1px solid #dfdfdf; font-size: 12px; display:flex; gap:10px;">
-      <span style="cursor:pointer;" onclick="clearPaint()">清除畫布</span>
-      <span style="cursor:pointer;">顏色：<input type="color" id="paint-color" value="#000000"></span>
-      <span style="cursor:pointer;">粗細：<input type="range" id="paint-size" min="1" max="10" value="2"></span>
+    <div class="menu-bar" style="align-items:center;">
+      <div class="menu-item-wrapper">檔案(F)<div class="dropdown-menu"><div class="dropdown-item" onclick="clearPaint()">開新檔案(N)</div><div class="dropdown-separator"></div><div class="dropdown-item" onclick="closeWindow('win-paint')">結束(X)</div></div></div>
+      <span style="margin-left:10px;">顏色：<input type="color" id="paint-color" value="#000000" style="vertical-align:middle; cursor:pointer;"></span>
+      <span style="margin-left:10px;">粗細：<input type="range" id="paint-size" min="1" max="20" value="2" style="vertical-align:middle; cursor:pointer;"></span>
     </div>
-    <div class="window-body" style="padding: 0; display: flex; background: #808080;">
-      <canvas id="paint-canvas" style="background: white; cursor: crosshair; margin: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);"></canvas>
+    <div class="window-body" id="paint-body" style="padding: 0; background: #808080; overflow:hidden;">
+      <canvas id="paint-canvas" style="background: white; cursor: crosshair; display:block;"></canvas>
     </div>
   </div>
 
   <!-- 視窗 8: 踩地雷 -->
   <div class="window" id="win-minesweeper" style="top: 150px; left: 150px; width: 220px;">
-    <div class="title-bar">
-      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/minesweeper-1.png" style="width:12px; margin-right:3px;"> 踩地雷</div>
-      <div class="title-bar-controls">
-        <button aria-label="Minimize" onclick="toggleWindow('win-minesweeper')"></button>
-        <button aria-label="Maximize" onclick="maximizeWindow('win-minesweeper')"></button>
-        <button aria-label="Close" onclick="closeWindow('win-minesweeper')"></button>
+    <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/minesweeper-1.png" style="width:12px; margin-right:3px;"> 踩地雷</div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-minesweeper')"></button><button aria-label="Close" onclick="closeWindow('win-minesweeper')"></button></div>
+    </div>
+    <div class="menu-bar">
+      <div class="menu-item-wrapper">遊戲(G)
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onclick="initMinesweeper()">開局(N) <span style="float:right">F2</span></div>
+          <div class="dropdown-separator"></div>
+          <div class="dropdown-item" onclick="closeWindow('win-minesweeper')">結束(X)</div>
+        </div>
       </div>
     </div>
-    <div style="background: #ece9d8; padding: 2px 5px; font-size: 12px; border-bottom: 2px solid white;">
-      <span style="cursor:pointer;" onclick="initMinesweeper()">重新開始 (F2)</span>
-    </div>
-    <div class="window-body" style="background: #bdbdbd; display:flex; justify-content:center; align-items:center;">
-      <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(8, 20px); grid-template-rows: repeat(8, 20px); gap: 1px; border: 3px inset #fff;">
-        <!-- JS 動態產生 -->
+    <div class="window-body" style="background: #c0c0c0; padding: 10px;">
+      <div style="border: 2px inset #fff; padding: 5px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center; background:#c0c0c0;">
+        <div id="ms-flags" style="background:black; color:red; font-family:'Courier New', monospace; font-size:20px; font-weight:bold; padding:2px; width:35px; text-align:center;">10</div>
+        <div id="ms-face" style="font-size:20px; cursor:pointer; border:2px outset #fff; padding:2px 4px;" onclick="initMinesweeper()">🙂</div>
+        <div id="ms-time" style="background:black; color:red; font-family:'Courier New', monospace; font-size:20px; font-weight:bold; padding:2px; width:35px; text-align:center;">0</div>
+      </div>
+      <div style="border: 3px inset #fff; display:flex; justify-content:center;">
+        <div id="minesweeper-grid" style="display: grid; grid-template-columns: repeat(8, 20px); grid-template-rows: repeat(8, 20px);"></div>
       </div>
     </div>
   </div>
 
   <!-- 底部工作列 -->
   <div class="taskbar">
-    <button class="start-button" id="start-btn" onclick="toggleStartMenu(event)">
-      <img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" alt="Windows Logo"> 開始
-    </button>
+    <button class="start-button" id="start-btn" onclick="toggleStartMenu(event)"><img src="https://win98icons.alexmeub.com/icons/png/windows-4.png"> 開始</button>
     <div class="task-area" id="task-area"></div>
     <div class="tray" id="clock">12:00 PM</div>
   </div>
 
   <script>
+    // ======= 電源管理 (開關機/待機) ======= //
+    let isStandby = false;
+    function executePowerAction(action) {
+      document.getElementById('shutdown-overlay').style.display = 'none';
+      const overlay = document.getElementById('system-overlay');
+      const msg = document.getElementById('system-msg');
+      const powerBtn = document.getElementById('power-button');
+      const bootLogo = document.getElementById('boot-logo');
+      
+      if(action === 'standby') {
+        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = 'black';
+        msg.style.display = 'none'; powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+      } else if (action === 'shutdown') {
+        overlay.style.display = 'flex'; overlay.style.background = '#003399';
+        msg.style.display = 'block'; msg.innerText = 'Windows is shutting down...';
+        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+        setTimeout(() => {
+          overlay.style.background = 'black'; msg.style.display = 'none'; powerBtn.style.display = 'flex';
+        }, 2000);
+      } else if (action === 'restart') {
+        overlay.style.display = 'flex'; overlay.style.background = '#003399';
+        msg.style.display = 'block'; msg.innerText = 'Windows is shutting down...';
+        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+        setTimeout(() => bootUp(), 1500);
+      }
+    }
+    
+    function bootUp() {
+      const overlay = document.getElementById('system-overlay');
+      const msg = document.getElementById('system-msg');
+      const powerBtn = document.getElementById('power-button');
+      const bootLogo = document.getElementById('boot-logo');
+      
+      overlay.style.background = 'black';
+      powerBtn.style.display = 'none';
+      msg.style.display = 'none';
+      bootLogo.style.display = 'block';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 3000);
+    }
+
+    // 待機喚醒
+    window.addEventListener('mousemove', () => { if(isStandby) wakeUp(); });
+    window.addEventListener('keydown', () => { if(isStandby) wakeUp(); });
+    window.addEventListener('click', () => { if(isStandby) wakeUp(); });
+    function wakeUp() { isStandby = false; document.getElementById('system-overlay').style.display = 'none'; }
+
     // ======= 桌面破壞遊戲 ======= //
     let isDestroying = false;
     function startDestroyer() {
       const canvas = document.getElementById('destroyer-canvas');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      canvas.style.display = 'block';
-      isDestroying = true;
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      canvas.style.display = 'block'; isDestroying = true;
       alert("桌面破壞模式已啟動！\n請用滑鼠點擊螢幕進行破壞。\n按下 [ESC] 鍵即可修復螢幕並退出！");
     }
-
     document.getElementById('destroyer-canvas').addEventListener('mousedown', function(e) {
       if(!isDestroying) return;
       const ctx = this.getContext('2d');
-      // 畫一個簡單的螢幕碎裂特效 (模擬)
-      ctx.beginPath();
-      ctx.moveTo(e.clientX, e.clientY);
+      ctx.beginPath(); ctx.moveTo(e.clientX, e.clientY);
       for(let i=0; i<8; i++) {
-        const angle = (Math.PI * 2 / 8) * i + Math.random();
-        const length = 20 + Math.random() * 50;
-        ctx.lineTo(e.clientX + Math.cos(angle)*length, e.clientY + Math.sin(angle)*length);
-        ctx.moveTo(e.clientX, e.clientY);
+        const angle = (Math.PI * 2 / 8) * i + Math.random(); const length = 20 + Math.random() * 50;
+        ctx.lineTo(e.clientX + Math.cos(angle)*length, e.clientY + Math.sin(angle)*length); ctx.moveTo(e.clientX, e.clientY);
       }
       ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
       ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
-      
-      // 彈孔中心點
-      ctx.beginPath();
-      ctx.arc(e.clientX, e.clientY, 3, 0, Math.PI*2);
-      ctx.fillStyle = 'black'; ctx.fill();
+      ctx.beginPath(); ctx.arc(e.clientX, e.clientY, 3, 0, Math.PI*2); ctx.fillStyle = 'black'; ctx.fill();
     });
-
     window.addEventListener('keydown', function(e) {
       if(e.key === 'Escape' && isDestroying) {
-        const canvas = document.getElementById('destroyer-canvas');
-        canvas.style.display = 'none';
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        isDestroying = false;
+        const canvas = document.getElementById('destroyer-canvas'); canvas.style.display = 'none';
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); isDestroying = false;
       }
     });
 
     // ======= XP 小狗 Rover ======= //
+    const dogMsgs = [
+      "汪汪！資料庫連線正常！", "想要玩踩地雷嗎？雙擊桌面圖示！", "你可以按右上角放大視窗喔！",
+      "右下角的時鐘有在跑喔！", "發現什麼有趣的數據了嗎？", "如果你把螢幕打破了，按 ESC 就可以修好喔！",
+      "我是 Rover，你專屬的導盲犬！", "這是一個致敬 XP 的神級專題！"
+    ];
+    let lastMsgIndex = -1;
     function toggleRoverBubble() {
       const bubble = document.getElementById('rover-bubble');
       bubble.style.display = bubble.style.display === 'block' ? 'none' : 'block';
       if(bubble.style.display === 'block') {
-        const msgs = ["汪汪！資料庫連線正常！", "想要玩踩地雷嗎？雙擊桌面圖示！", "你可以按右上角放大視窗喔！", "右下角的時鐘有在跑喔！"];
-        bubble.innerText = msgs[Math.floor(Math.random() * msgs.length)];
-        setTimeout(() => { bubble.style.display = 'none'; }, 5000);
+        let nIdx = Math.floor(Math.random() * dogMsgs.length);
+        while(nIdx === lastMsgIndex) nIdx = Math.floor(Math.random() * dogMsgs.length);
+        lastMsgIndex = nIdx;
+        bubble.innerText = dogMsgs[nIdx];
+        setTimeout(() => { bubble.style.display = 'none'; }, 4000);
       }
     }
 
-    // ======= 小畫家邏輯 ======= //
+    // ======= 小畫家邏輯 (自動適應視窗大小) ======= //
     const pCanvas = document.getElementById('paint-canvas');
     const pCtx = pCanvas.getContext('2d');
     let isPainting = false;
-    // 初始化畫布大小
-    setTimeout(() => { pCanvas.width = 460; pCanvas.height = 320; pCtx.fillStyle='white'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);}, 100);
-
-    pCanvas.addEventListener('mousedown', e => {
-      isPainting = true;
-      pCtx.beginPath();
-      pCtx.moveTo(e.offsetX, e.offsetY);
+    
+    // Resize Observer 來讓 canvas 跟隨 window-body 大小
+    const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        const w = entry.contentRect.width; const h = entry.contentRect.height;
+        if(w === 0 || h === 0) return;
+        const temp = pCtx.getImageData(0,0,pCanvas.width || 1,pCanvas.height || 1);
+        pCanvas.width = w; pCanvas.height = h;
+        pCtx.fillStyle='white'; pCtx.fillRect(0,0,w,h);
+        if(temp.width > 1) pCtx.putImageData(temp,0,0);
+      }
     });
+    resizeObserver.observe(document.getElementById('paint-body'));
+
+    pCanvas.addEventListener('mousedown', e => { isPainting = true; pCtx.beginPath(); pCtx.moveTo(e.offsetX, e.offsetY); });
     pCanvas.addEventListener('mousemove', e => {
       if(isPainting) {
-        pCtx.lineTo(e.offsetX, e.offsetY);
-        pCtx.strokeStyle = document.getElementById('paint-color').value;
-        pCtx.lineWidth = document.getElementById('paint-size').value;
-        pCtx.lineCap = 'round';
-        pCtx.stroke();
+        pCtx.lineTo(e.offsetX, e.offsetY); pCtx.strokeStyle = document.getElementById('paint-color').value;
+        pCtx.lineWidth = document.getElementById('paint-size').value; pCtx.lineCap = 'round'; pCtx.stroke();
       }
     });
     pCanvas.addEventListener('mouseup', () => isPainting = false);
     pCanvas.addEventListener('mouseout', () => isPainting = false);
-    function clearPaint() { pCtx.fillRect(0,0,pCanvas.width,pCanvas.height); }
+    function clearPaint() { pCtx.fillStyle='white'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height); }
 
-    // ======= 踩地雷邏輯 (簡易版 8x8) ======= //
+    // ======= 完美版踩地雷邏輯 (包含過關、擴散、旗子限制) ======= //
     const grid = document.getElementById('minesweeper-grid');
-    let mineData = [];
+    const face = document.getElementById('ms-face');
+    const flagDisp = document.getElementById('ms-flags');
+    let mineData = [], cellEls = [];
+    const TOTAL_MINES = 10;
+    let flagsLeft = TOTAL_MINES, revealedCount = 0, isMsGameOver = false;
+
     function initMinesweeper() {
-      grid.innerHTML = ''; mineData = [];
+      grid.innerHTML = ''; mineData = []; cellEls = [];
+      flagsLeft = TOTAL_MINES; revealedCount = 0; isMsGameOver = false;
+      face.innerText = '🙂'; flagDisp.innerText = flagsLeft.toString().padStart(2, '0');
+      // 產生盤面
       for(let i=0; i<64; i++) {
         const cell = document.createElement('div');
-        cell.style.width = '20px'; cell.style.height = '20px';
-        cell.style.background = '#c0c0c0'; cell.style.border = '2px outset #fff';
-        cell.style.display = 'flex'; cell.style.justifyContent = 'center'; cell.style.alignItems = 'center';
-        cell.style.fontSize = '14px'; cell.style.fontWeight = 'bold'; cell.style.cursor = 'pointer';
-        cell.dataset.index = i;
-        cell.oncontextmenu = (e) => { e.preventDefault(); if(cell.innerText === '') cell.innerText = '🚩'; else if(cell.innerText==='🚩') cell.innerText=''; };
-        cell.onclick = () => clickMine(cell, i);
-        grid.appendChild(cell);
-        mineData.push(Math.random() > 0.85 ? -1 : 0); // 15% 地雷
+        cell.className = 'ms-cell'; cell.dataset.index = i;
+        cell.oncontextmenu = (e) => { e.preventDefault(); flagCell(i); };
+        cell.onmousedown = (e) => { if(e.button===0) clickCell(i); };
+        grid.appendChild(cell); cellEls.push(cell); mineData.push(0);
       }
-      // 計算數字
+      // 放地雷
+      let placed = 0;
+      while(placed < TOTAL_MINES) {
+        const r = Math.floor(Math.random() * 64);
+        if(mineData[r] !== -1) { mineData[r] = -1; placed++; }
+      }
+      // 算數字
       for(let i=0; i<64; i++) {
         if(mineData[i] === -1) continue;
-        let count = 0;
-        const x = i%8, y = Math.floor(i/8);
-        for(let dx=-1; dx<=1; dx++) {
-          for(let dy=-1; dy<=1; dy++) {
-            const nx = x+dx, ny = y+dy;
-            if(nx>=0 && nx<8 && ny>=0 && ny<8 && mineData[ny*8+nx]===-1) count++;
-          }
+        let count = 0; const x = i%8, y = Math.floor(i/8);
+        for(let dx=-1; dx<=1; dx++) for(let dy=-1; dy<=1; dy++) {
+          const nx = x+dx, ny = y+dy;
+          if(nx>=0 && nx<8 && ny>=0 && ny<8 && mineData[ny*8+nx]===-1) count++;
         }
         mineData[i] = count;
       }
     }
-    function clickMine(cell, i) {
-      if(cell.innerText === '🚩') return;
-      cell.style.border = '1px solid #777'; cell.style.background = '#ddd';
-      if(mineData[i] === -1) {
-        cell.innerText = '💣'; cell.style.background = 'red';
-        alert('踩到地雷了！遊戲結束！');
-        initMinesweeper();
+    
+    function flagCell(i) {
+      if(isMsGameOver || cellEls[i].classList.contains('revealed')) return;
+      if(cellEls[i].innerText === '🚩') {
+        cellEls[i].innerText = ''; flagsLeft++;
       } else {
-        if(mineData[i] > 0) cell.innerText = mineData[i];
+        if(flagsLeft > 0) { cellEls[i].innerText = '🚩'; flagsLeft--; }
+      }
+      flagDisp.innerText = flagsLeft.toString().padStart(2, '0');
+    }
+
+    function clickCell(i) {
+      if(isMsGameOver || cellEls[i].classList.contains('revealed') || cellEls[i].innerText === '🚩') return;
+      cellEls[i].classList.add('revealed');
+      revealedCount++;
+      
+      if(mineData[i] === -1) { // 踩到地雷
+        cellEls[i].innerText = '💣'; cellEls[i].style.background = 'red';
+        face.innerText = '😵'; isMsGameOver = true;
+        // 顯示所有地雷
+        for(let j=0; j<64; j++) if(mineData[j]===-1 && j!==i) { cellEls[j].classList.add('revealed'); cellEls[j].innerText = '💣'; }
+        alert('踩到地雷了！遊戲結束！');
+      } else {
+        if(mineData[i] > 0) {
+          cellEls[i].innerText = mineData[i];
+          const colors = ['','blue','green','red','purple','maroon','turquoise','black','gray'];
+          cellEls[i].style.color = colors[mineData[i]];
+        } else {
+          // 擴散邏輯
+          const x = i%8, y = Math.floor(i/8);
+          for(let dx=-1; dx<=1; dx++) for(let dy=-1; dy<=1; dy++) {
+            const nx = x+dx, ny = y+dy;
+            if(nx>=0 && nx<8 && ny>=0 && ny<8) clickCell(ny*8+nx);
+          }
+        }
+        // 檢查勝利
+        if(revealedCount === 64 - TOTAL_MINES) {
+          face.innerText = '😎'; isMsGameOver = true;
+          alert('恭喜你！成功掃雷！');
+        }
       }
     }
-    initMinesweeper();
+    initMinesweeper(); // 初始呼叫
 
     // ======= 小算盤邏輯 ======= //
     let calcVal = '';
@@ -556,25 +608,12 @@
     }
     document.addEventListener('click', (e) => {
       const menu = document.getElementById('start-menu'), btn = document.getElementById('start-btn');
-      if (!menu.contains(e.target) && !btn.contains(e.target)) { menu.style.display = 'none'; btn.classList.remove('active'); }
+      if (!menu.contains(e.target) && !btn.contains(e.target) && !e.target.closest('.dropdown-menu')) { menu.style.display = 'none'; btn.classList.remove('active'); }
     });
 
     let zIndexCounter = 100;
-    const windowTitles = {
-      'win-computer': '我的電腦', 'win-sensors': '即時感測器監控', 'win-chart': '數據分析儀',
-      'win-data': '資料庫檢視器', 'win-notepad': '未命名 - 記事本', 'win-calc': '小算盤',
-      'win-paint': '小畫家', 'win-minesweeper': '踩地雷'
-    };
-    const windowIcons = {
-      'win-computer': 'https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png',
-      'win-sensors': 'https://win98icons.alexmeub.com/icons/png/hardware_camera-1.png',
-      'win-chart': 'https://win98icons.alexmeub.com/icons/png/chart1-1.png',
-      'win-data': 'https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png',
-      'win-notepad': 'https://win98icons.alexmeub.com/icons/png/notepad-1.png',
-      'win-calc': 'https://win98icons.alexmeub.com/icons/png/calculator-1.png',
-      'win-paint': 'https://win98icons.alexmeub.com/icons/png/paint_file-1.png',
-      'win-minesweeper': 'https://win98icons.alexmeub.com/icons/png/minesweeper-1.png'
-    };
+    const windowTitles = { 'win-computer': '我的電腦', 'win-sensors': '即時感測器監控', 'win-chart': '數據分析儀', 'win-data': '資料庫檢視器', 'win-notepad': '未命名 - 記事本', 'win-calc': '小算盤', 'win-paint': '小畫家', 'win-minesweeper': '踩地雷' };
+    const windowIcons = { 'win-computer': 'https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png', 'win-sensors': 'https://win98icons.alexmeub.com/icons/png/camera3-0.png', 'win-chart': 'https://win98icons.alexmeub.com/icons/png/chart1-1.png', 'win-data': 'https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png', 'win-notepad': 'https://win98icons.alexmeub.com/icons/png/notepad-1.png', 'win-calc': 'https://win98icons.alexmeub.com/icons/png/calculator-1.png', 'win-paint': 'https://win98icons.alexmeub.com/icons/png/paint_file-1.png', 'win-minesweeper': 'https://win98icons.alexmeub.com/icons/png/minesweeper-1.png' };
 
     function bringToFront(winId, isMenu=false) {
       zIndexCounter++; document.getElementById(winId).style.zIndex = zIndexCounter;
@@ -586,8 +625,8 @@
 
     function openWindow(winId) {
       const win = document.getElementById(winId);
-      if (win.style.display === 'none' || win.style.display === '') {
-        win.style.display = 'flex';
+      if (!win.classList.contains('is-open')) {
+        win.classList.add('is-open');
         if (!document.getElementById('task-' + winId)) {
           const btn = document.createElement('div'); btn.className = 'task-item active'; btn.id = 'task-' + winId;
           btn.innerHTML = `<img src="${windowIcons[winId]}"> ${windowTitles[winId]}`;
@@ -596,11 +635,11 @@
       }
       bringToFront(winId);
     }
-    function closeWindow(winId) { document.getElementById(winId).style.display = 'none'; const taskBtn = document.getElementById('task-' + winId); if (taskBtn) taskBtn.remove(); }
+    function closeWindow(winId) { document.getElementById(winId).classList.remove('is-open'); const taskBtn = document.getElementById('task-' + winId); if (taskBtn) taskBtn.remove(); }
     function toggleWindow(winId) {
       const win = document.getElementById(winId);
-      if (win.style.display === 'none') { win.style.display = 'flex'; bringToFront(winId); } 
-      else { if (win.style.zIndex == zIndexCounter) { win.style.display = 'none'; document.getElementById('task-' + winId).classList.remove('active'); } else bringToFront(winId); }
+      if (!win.classList.contains('is-open')) { win.classList.add('is-open'); bringToFront(winId); } 
+      else { if (win.style.zIndex == zIndexCounter) { win.classList.remove('is-open'); document.getElementById('task-' + winId).classList.remove('active'); } else bringToFront(winId); }
     }
     function maximizeWindow(winId) {
       const win = document.getElementById(winId);
