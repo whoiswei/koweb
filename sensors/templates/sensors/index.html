@@ -200,14 +200,30 @@
   <!-- 關機畫面 -->
   <div id="shutdown-screen">
     <div style="background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%); padding: 80px; display:flex; flex-direction:column; align-items:center;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Windows_XP_logo.svg" width="220" style="filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));">
-      <div style="color: white; font-family: Tahoma; font-size: 22px; margin-top: 30px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Windows is shutting down...</div>
+      <svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5)); margin-bottom: 20px;">
+        <path d="M10,48 C25,40 40,48 48,48 L48,20 C40,20 25,12 10,20 Z" fill="#f05025"/>
+        <path d="M52,48 C60,48 75,40 90,48 L90,20 C75,12 60,20 52,20 Z" fill="#7bbf26"/>
+        <path d="M10,52 C25,44 40,52 48,52 L48,80 C40,80 25,72 10,80 Z" fill="#00a3f0"/>
+        <path d="M52,52 C60,52 75,44 90,52 L90,80 C75,72 60,80 52,80 Z" fill="#ffb900"/>
+      </svg>
+      <div style="color: white; font-family: Tahoma; font-size: 22px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Windows is shutting down...</div>
     </div>
   </div>
 
   <!-- 開機畫面 -->
   <div id="boot-screen">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Windows_XP_logo.svg" width="250" style="margin-bottom: 60px;">
+    <div style="display:flex; align-items:center; gap: 20px; margin-bottom: 40px;">
+      <svg width="150" height="150" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));">
+        <path d="M10,48 C25,40 40,48 48,48 L48,20 C40,20 25,12 10,20 Z" fill="#f05025"/>
+        <path d="M52,48 C60,48 75,40 90,48 L90,20 C75,12 60,20 52,20 Z" fill="#7bbf26"/>
+        <path d="M10,52 C25,44 40,52 48,52 L48,80 C40,80 25,72 10,80 Z" fill="#00a3f0"/>
+        <path d="M52,52 C60,52 75,44 90,52 L90,80 C75,72 60,80 52,80 Z" fill="#ffb900"/>
+      </svg>
+      <div style="font-family: Arial, sans-serif; color: white;">
+        <div style="font-size: 54px; font-weight: bold; font-style: italic;">Microsoft</div>
+        <div style="font-size: 64px; font-weight: bold;">Windows <sup style="color: #ef8218; font-size: 30px;">xp</sup></div>
+      </div>
+    </div>
     <div style="font-family: Arial, sans-serif; font-size: 26px; margin-bottom: 30px; letter-spacing: 1px;">Professional</div>
     <div style="width: 160px; height: 16px; border: 2px solid #b2b2b2; border-radius: 5px; padding: 2px; position: relative; overflow: hidden; background: black;">
       <div style="width: 35px; height: 100%; display: flex; gap: 2px; position: absolute; animation: scroll-boot-bar 2.5s infinite linear;">
@@ -482,17 +498,18 @@
         standbyScreen.style.background = '#003399';
         standbyMsg.style.display = 'block';
         
-        // 延遲 1 秒後轉入黑畫面並載入迷宮
+        // 立即綁定喚醒事件，避免滑鼠移動過快造成的 race condition
+        window.addEventListener('mousemove', wakeUpStandby);
+        window.addEventListener('keydown', wakeUpStandby);
+        window.addEventListener('click', wakeUpStandby);
+
+        // 延遲 1.5 秒後轉入黑畫面並載入迷宮
         setTimeout(() => {
+          if(!isStandby) return; // 如果這 1.5 秒內已經被喚醒，就中止載入
           standbyScreen.style.background = 'black';
           standbyMsg.style.display = 'none';
           maze.src = "https://vanilladeath.github.io/Windows-95-3D-Maze-Screensaver/maze.html";
           maze.style.display = 'block';
-
-          // 綁定喚醒事件
-          window.addEventListener('mousemove', wakeUpStandby);
-          window.addEventListener('keydown', wakeUpStandby);
-          window.addEventListener('click', wakeUpStandby);
         }, 1500);
 
       } else if (action === 'shutdown') {
@@ -578,17 +595,21 @@
       "我是 Rover，你專屬的導盲犬！", "這是一個致敬 XP 的神級專題！"
     ];
     let lastMsgIndex = -1;
-    function toggleRoverBubble() {
+    function showRoverBubble() {
       const bubble = document.getElementById('rover-bubble');
-      bubble.style.display = bubble.style.display === 'block' ? 'none' : 'block';
-      if(bubble.style.display === 'block') {
-        let nIdx = Math.floor(Math.random() * dogMsgs.length);
-        while(nIdx === lastMsgIndex) nIdx = Math.floor(Math.random() * dogMsgs.length);
-        lastMsgIndex = nIdx;
-        bubble.innerText = dogMsgs[nIdx];
-        setTimeout(() => { bubble.style.display = 'none'; }, 4000);
-      }
+      let nIdx = Math.floor(Math.random() * dogMsgs.length);
+      while(nIdx === lastMsgIndex) nIdx = Math.floor(Math.random() * dogMsgs.length);
+      lastMsgIndex = nIdx;
+      bubble.innerText = dogMsgs[nIdx];
+      bubble.style.display = 'block';
+      setTimeout(() => { bubble.style.display = 'none'; }, 5000);
     }
+    
+    // 點擊可以強制說話
+    function toggleRoverBubble() { showRoverBubble(); }
+    
+    // 每 15 秒自動隨機說話
+    setInterval(showRoverBubble, 15000);
 
     // ======= 小畫家邏輯 (自動適應視窗大小) ======= //
     const pCanvas = document.getElementById('paint-canvas');
