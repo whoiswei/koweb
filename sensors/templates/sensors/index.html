@@ -7,6 +7,7 @@
   <title>Windows XP - 物聯網個人專題</title>
   <link rel="stylesheet" href="https://unpkg.com/xp.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
   <style>
     body, html {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
@@ -42,7 +43,7 @@
     .title-bar:active { cursor: grabbing; }
     .window-body { flex-grow: 1; overflow: auto; margin: 0; padding: 10px; box-sizing: border-box; }
 
-    /* 選單列下拉樣式 (檔案/編輯等) */
+    /* 選單列下拉樣式 */
     .menu-bar { display: flex; gap: 5px; background: #ece9d8; padding: 2px 5px; border-bottom: 1px solid #dfdfdf; font-size: 12px; }
     .menu-item-wrapper { position: relative; padding: 2px 6px; cursor: default; }
     .menu-item-wrapper:hover { background: #316ac5; color: white; }
@@ -62,8 +63,6 @@
       background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #245edb 92%, #333 100%);
       display: flex; align-items: center; z-index: 10000; border-top: 1px solid #0055eb;
     }
-
-    /* 經典 XP 綠色開始按鈕 */
     .start-button {
       background: linear-gradient(to bottom, #42a921 0%, #348419 100%); border: none; border-radius: 0 10px 10px 0;
       color: white; font-weight: bold; font-style: italic; font-size: 14px; height: 30px; padding: 0 20px 0 15px;
@@ -109,21 +108,22 @@
     th, td { border: 1px solid #999; padding: 5px; text-align: left; font-size: 12px; }
     th { background: #ece9d8; }
 
-    /* 小算盤樣式完美版 */
-    #win-calc { min-width: 250px; max-width: 280px; }
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #ece9d8; }
-    .calc-grid button { padding: 8px 0; font-size: 14px; font-weight: bold; border: 2px outset #fff; background: #ece9d8; cursor: pointer; }
+    /* 小算盤重製：自由縮放版 */
+    #win-calc { min-width: 250px; min-height: 300px; }
+    .calc-container { display: flex; flex-direction: column; height: 100%; background: #ece9d8; padding: 10px; box-sizing: border-box; }
+    .calc-display { background: white; border: 2px inset #dfdfdf; padding: 5px; text-align: right; font-size: 24px; font-family: 'Courier New', Courier, monospace; height: 35px; overflow: hidden; margin-bottom: 10px; flex-shrink: 0;}
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex-grow: 1; }
+    .calc-grid button { font-size: 16px; font-weight: bold; border: 2px outset #fff; background: #ece9d8; cursor: pointer; height: 100%; min-height: 30px;}
     .calc-grid button:active { border: 2px inset #fff; }
-    .calc-display { background: white; border: 2px inset #dfdfdf; padding: 5px; text-align: right; font-size: 24px; font-family: 'Courier New', Courier, monospace; height: 35px; overflow: hidden; margin: 10px 10px 0 10px;}
 
     /* 關機對話框 */
     .shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100000; display: none; align-items: center; justify-content: center; }
-    .shutdown-dialog { width: 350px; height: 220px; background: #003399; display: flex; flex-direction: column; border: 2px solid white; color: white; font-family: Tahoma; }
+    .shutdown-dialog { width: 350px; background: #003399; display: flex; flex-direction: column; border: 1px solid white; color: white; font-family: Tahoma; }
     .shutdown-header { padding: 10px; font-size: 20px; border-bottom: 1px solid white; display:flex; justify-content: space-between; }
-    .shutdown-body { flex-grow: 1; display: flex; justify-content: space-around; align-items: center; background: linear-gradient(to right, #5a7edc 0%, #3e62c1 100%); }
-    .shutdown-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: white; opacity: 0.8; font-size: 12px; }
-    .shutdown-btn:hover { opacity: 1; }
-    .shutdown-btn img { width: 48px; height: 48px; margin-bottom: 5px; background: #003399; border-radius: 5px; border: 1px solid white; padding: 5px;}
+    .shutdown-body { display: flex; justify-content: space-around; align-items: center; background: linear-gradient(to bottom right, #5a7edc 0%, #3e62c1 100%); padding: 30px 10px; }
+    .shutdown-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: white; opacity: 0.9; font-size: 12px; transition: transform 0.1s; }
+    .shutdown-btn:hover { opacity: 1; transform: scale(1.05); }
+    .power-icon { width:45px; height:45px; border-radius:5px; display:flex; justify-content:center; align-items:center; margin-bottom:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
 
     /* 開關機/動畫遮罩 */
     #system-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
@@ -134,14 +134,23 @@
     .boot-bar { width: 50px; height: 100%; background: linear-gradient(to right, #245edb, #3f8cf3, #245edb); position: absolute; animation: slide 2s infinite linear; }
     @keyframes slide { 0% { left: -50px; } 100% { left: 250px; } }
 
-    /* 桌面破壞器 Canvas */
-    #destroyer-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99998; display: none; cursor: crosshair; pointer-events: auto; }
+    /* 桌面破壞器 Canvas & 工具列 */
+    #destroyer-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99998; display: none; pointer-events: auto; }
+    #destroyer-toolbar { position: absolute; top: 10px; right: 10px; z-index: 99999; background: #ece9d8; border: 2px outset #fff; padding: 5px; display: none; flex-direction: column; gap: 5px; }
+    .destroyer-btn { width: 40px; height: 40px; border: 2px outset #fff; background: #c0c0c0; cursor: pointer; display:flex; justify-content:center; align-items:center; font-size: 20px; }
+    .destroyer-btn.active { border: 2px inset #fff; background: #fff; }
 
-    /* XP 小狗 Rover */
+    /* XP 小狗 Rover (Tenor Embed) */
     .rover { position: absolute; bottom: 40px; right: 20px; z-index: 9999; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
     .rover-bubble { background: #ffffe1; border: 1px solid black; padding: 10px; border-radius: 10px; font-size: 12px; color: black; margin-bottom: 5px; display: none; width: 180px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
-    .rover-bubble::after { content: ''; position: absolute; bottom: 65px; right: 35px; border-width: 10px 10px 0; border-style: solid; border-color: #ffffe1 transparent transparent; display: block; width: 0; }
-    .rover-bubble::before { content: ''; position: absolute; bottom: 63px; right: 35px; border-width: 11px 11px 0; border-style: solid; border-color: black transparent transparent; display: block; width: 0; }
+    .rover-bubble::after { content: ''; position: absolute; bottom: 85px; right: 35px; border-width: 10px 10px 0; border-style: solid; border-color: #ffffe1 transparent transparent; display: block; width: 0; }
+    .rover-bubble::before { content: ''; position: absolute; bottom: 83px; right: 35px; border-width: 11px 11px 0; border-style: solid; border-color: black transparent transparent; display: block; width: 0; }
+
+    /* 自訂 XP Alert */
+    #xp-alert-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100002; justify-content: center; align-items: center; }
+    .xp-alert-box { background: #ece9d8; border: 1px solid #0055eb; width: 300px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+    .xp-alert-header { background: linear-gradient(to right, #0058e6, #3f8cf3); color: white; padding: 5px 10px; font-weight: bold; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .xp-alert-close { background: #e04343; color: white; border: 1px solid white; border-radius: 3px; cursor: pointer; font-size: 10px; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; }
     
     /* 踩地雷自訂義 */
     .ms-cell { width: 20px; height: 20px; background: #c0c0c0; border: 2px outset #fff; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; cursor: pointer; user-select: none; }
@@ -150,9 +159,24 @@
 </head>
 <body>
 
+  <!-- 自訂 XP 通知對話框 -->
+  <div id="xp-alert-overlay">
+    <div class="xp-alert-box">
+      <div class="xp-alert-header"><span id="xp-alert-title">訊息</span><div class="xp-alert-close" onclick="closeXpAlert()">X</div></div>
+      <div style="padding: 15px; display: flex; gap: 10px; align-items: center;">
+        <img src="https://win98icons.alexmeub.com/icons/png/msg_information-0.png" width="32" height="32" id="xp-alert-icon">
+        <span id="xp-alert-msg" style="flex-grow: 1; font-size: 14px; line-height: 1.5; color: black;"></span>
+      </div>
+      <div style="text-align: center; padding-bottom: 10px;">
+        <button onclick="closeXpAlert()" style="padding: 4px 20px; cursor: pointer; font-family: Tahoma;">確定</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 系統底層遮罩 (開關機) -->
   <div id="system-overlay">
     <div id="system-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Windows is shutting down...</div>
+    <div id="system-standby-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Preparing to Stand by...</div>
     <div id="power-button" onclick="bootUp()">⏻</div>
     <div id="boot-logo">
       <h1 style="font-family: Tahoma; font-style: italic; font-size: 48px; margin:0;">Microsoft Windows <span style="color:#ef8218;">XP</span></h1>
@@ -160,13 +184,20 @@
     </div>
   </div>
 
-  <!-- 桌面破壞畫布 -->
+  <!-- 桌面破壞畫布與工具列 -->
   <canvas id="destroyer-canvas"></canvas>
+  <div id="destroyer-toolbar">
+    <div class="destroyer-btn active" onclick="setWeapon('hammer')" id="btn-hammer" title="鐵鎚">🔨</div>
+    <div class="destroyer-btn" onclick="setWeapon('machinegun')" id="btn-machinegun" title="機關槍">🔫</div>
+    <div class="destroyer-btn" style="color:red; font-size:12px; font-weight:bold;" onclick="stopDestroyer()">ESC</div>
+  </div>
 
-  <!-- XP 小狗 -->
+  <!-- XP 小狗 Rover (Tenor Embed) -->
   <div class="rover" onclick="toggleRoverBubble()">
     <div class="rover-bubble" id="rover-bubble"></div>
-    <img src="https://media1.tenor.com/m/Q8tE1rG7fCEAAAAd/rover-windows.gif" width="70" alt="Rover">
+    <div style="width: 80px; height: 80px;">
+      <div class="tenor-gif-embed" data-postid="22472907" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/rover-the-dog-gif-fefiax-gif-22472907">Rover The Dog Gif Fefiax GIF</a></div>
+    </div>
   </div>
 
   <!-- 關機畫面 -->
@@ -174,45 +205,36 @@
     <div class="shutdown-dialog">
       <div class="shutdown-header"><span>Turn off computer</span><img src="https://win98icons.alexmeub.com/icons/png/windows-4.png" width="24" height="24"></div>
       <div class="shutdown-body">
-        <div class="shutdown-btn" onclick="executePowerAction('standby')"><img src="https://win98icons.alexmeub.com/icons/png/standby-0.png"> Stand By</div>
-        <div class="shutdown-btn" onclick="executePowerAction('shutdown')"><img src="https://win98icons.alexmeub.com/icons/png/shut_down_cool-0.png"> Turn Off</div>
-        <div class="shutdown-btn" onclick="executePowerAction('restart')"><img src="https://win98icons.alexmeub.com/icons/png/update-0.png"> Restart</div>
+        <div class="shutdown-btn" onclick="executePowerAction('standby')">
+          <div class="power-icon" style="background:#e5c300; border:2px outset #ffea70;"><span style="color:white; font-size:24px;">☾</span></div>
+          Stand By
+        </div>
+        <div class="shutdown-btn" onclick="executePowerAction('shutdown')">
+          <div class="power-icon" style="background:#d33333; border:2px outset #ff6b6b;"><span style="color:white; font-size:24px;">⏻</span></div>
+          Turn Off
+        </div>
+        <div class="shutdown-btn" onclick="executePowerAction('restart')">
+          <div class="power-icon" style="background:#33b333; border:2px outset #6bff6b;"><span style="color:white; font-size:24px;">↻</span></div>
+          Restart
+        </div>
       </div>
-      <div style="background:#003399; height: 35px; display:flex; justify-content:flex-end; align-items:center; padding: 0 10px;">
-        <button style="padding: 2px 15px; cursor: pointer;" onclick="document.getElementById('shutdown-overlay').style.display='none'">Cancel</button>
+      <div style="background:#003399; height: 40px; display:flex; justify-content:flex-end; align-items:center; padding: 0 10px;">
+        <button style="padding: 2px 15px; cursor: pointer; font-family: Tahoma;" onclick="document.getElementById('shutdown-overlay').style.display='none'">Cancel</button>
       </div>
     </div>
   </div>
 
   <!-- 桌面圖示區 -->
   <div class="desktop" id="desktop">
-    <div class="desktop-icon" ondblclick="openWindow('win-computer')">
-      <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png"><span>我的電腦</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-sensors')">
-      <img src="https://win98icons.alexmeub.com/icons/png/camera3-0.png"><span>即時感測</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-chart')">
-      <img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png"><span>歷史圖表</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-data')">
-      <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png"><span>原始資料</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-notepad')">
-      <img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png"><span>記事本</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-calc')">
-      <img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png"><span>小算盤</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-paint')">
-      <img src="https://win98icons.alexmeub.com/icons/png/paint_file-1.png"><span>小畫家</span>
-    </div>
-    <div class="desktop-icon" ondblclick="openWindow('win-minesweeper')">
-      <img src="https://win98icons.alexmeub.com/icons/png/minesweeper-1.png"><span>踩地雷</span>
-    </div>
-    <div class="desktop-icon" ondblclick="startDestroyer()">
-      <img src="https://win98icons.alexmeub.com/icons/png/console_prompt-1.png"><span>桌面破壞程式</span>
-    </div>
+    <div class="desktop-icon" ondblclick="openWindow('win-computer')"><img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png"><span>我的電腦</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-sensors')"><img src="https://win98icons.alexmeub.com/icons/png/camera3-0.png"><span>即時感測</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-chart')"><img src="https://win98icons.alexmeub.com/icons/png/chart1-1.png"><span>歷史圖表</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-data')"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png"><span>原始資料</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-notepad')"><img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png"><span>記事本</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-calc')"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png"><span>小算盤</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-paint')"><img src="https://win98icons.alexmeub.com/icons/png/paint_file-1.png"><span>小畫家</span></div>
+    <div class="desktop-icon" ondblclick="openWindow('win-minesweeper')"><img src="https://win98icons.alexmeub.com/icons/png/minesweeper-1.png"><span>踩地雷</span></div>
+    <div class="desktop-icon" ondblclick="startDestroyer()"><img src="https://win98icons.alexmeub.com/icons/png/console_prompt-1.png"><span>桌面破壞程式</span></div>
   </div>
 
   <!-- 開始選單 -->
@@ -248,7 +270,7 @@
     </div>
     <div class="menu-bar">
       <div class="menu-item-wrapper">檔案(F)<div class="dropdown-menu"><div class="dropdown-item" onclick="closeWindow('win-computer')">關閉(C)</div></div></div>
-      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="alert('物聯網個人專題展示系統')">關於(A)</div></div></div>
+      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="xpAlert('關於', '物聯網個人專題展示系統 v2.0')">關於(A)</div></div></div>
     </div>
     <div class="window-body">
       <div style="display:flex; align-items:center; gap:15px; margin-bottom: 10px;">
@@ -256,7 +278,7 @@
         <div><p style="margin:0 0 5px 0;"><strong>使用者資訊</strong></p><p style="margin:0;">姓名：{{ name|default:"訪客" }}</p><p style="margin:0;">學號：{{ student_id|default:"N/A" }}</p></div>
       </div>
       <p>專案：物聯網個人專題網站</p>
-      <a href="#" style="color: blue;" onclick="alert('即將連結至組別網站...')">連線至組別總網站</a>
+      <a href="#" style="color: blue;" onclick="xpAlert('連線', '即將連線至外部組別網站...')">連線至組別總網站</a>
     </div>
   </div>
 
@@ -300,7 +322,7 @@
     <div class="menu-bar">
       <div class="menu-item-wrapper">檔案(F)
         <div class="dropdown-menu">
-          <div class="dropdown-item" onclick="alert('檔案已成功儲存至虛擬空間！')">儲存(S)</div>
+          <div class="dropdown-item" onclick="xpAlert('記事本', '檔案已成功儲存至虛擬空間！')">儲存(S)</div>
           <div class="dropdown-separator"></div>
           <div class="dropdown-item" onclick="closeWindow('win-notepad')">結束(X)</div>
         </div>
@@ -311,7 +333,7 @@
         </div>
       </div>
       <div class="menu-item-wrapper">說明(H)
-        <div class="dropdown-menu"><div class="dropdown-item" onclick="alert('網頁版記事本 v1.0')">關於記事本(A)</div></div>
+        <div class="dropdown-menu"><div class="dropdown-item" onclick="xpAlert('關於', '網頁版記事本 v1.0')">關於記事本(A)</div></div>
       </div>
     </div>
     <div class="window-body" style="padding: 0; display: flex;">
@@ -319,22 +341,26 @@
     </div>
   </div>
 
-  <!-- 視窗 6: 小算盤 -->
+  <!-- 視窗 6: 小算盤 (修復網格拉伸) -->
   <div class="window" id="win-calc" style="top: 200px; left: 350px;">
     <div class="title-bar"><div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/calculator-1.png" style="width:12px; margin-right:3px;"> 小算盤</div>
-      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-calc')"></button><button aria-label="Close" onclick="closeWindow('win-calc')"></button></div>
+      <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-calc')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-calc')"></button><button aria-label="Close" onclick="closeWindow('win-calc')"></button></div>
     </div>
     <div class="menu-bar">
       <div class="menu-item-wrapper">編輯(E)<div class="dropdown-menu"><div class="dropdown-item" onclick="calcClear()">清除(C)</div></div></div>
-      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="alert('這是一個可以正常運作的小算盤喔！')">關於(A)</div></div></div>
+      <div class="menu-item-wrapper">說明(H)<div class="dropdown-menu"><div class="dropdown-item" onclick="xpAlert('小算盤', '這是一個可以正常運作與自由縮放的計算機。')">關於(A)</div></div></div>
     </div>
-    <div class="calc-display" id="calc-display">0</div>
-    <div class="calc-grid">
-      <button onclick="calcClear()">C</button><button onclick="calcClear()">CE</button><button onclick="calcOp('%')">%</button><button onclick="calcOp('/')">/</button>
-      <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcOp('*')">*</button>
-      <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcOp('-')">-</button>
-      <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcOp('+')">+</button>
-      <button onclick="calcInput('0')" style="grid-column: span 2;">0</button><button onclick="calcInput('.')">.</button><button onclick="calcEval()">=</button>
+    <div class="window-body" style="padding:0;">
+      <div class="calc-container">
+        <div class="calc-display" id="calc-display">0</div>
+        <div class="calc-grid">
+          <button onclick="calcClear()">C</button><button onclick="calcClear()">CE</button><button onclick="calcOp('%')">%</button><button onclick="calcOp('/')">/</button>
+          <button onclick="calcInput('7')">7</button><button onclick="calcInput('8')">8</button><button onclick="calcInput('9')">9</button><button onclick="calcOp('*')">*</button>
+          <button onclick="calcInput('4')">4</button><button onclick="calcInput('5')">5</button><button onclick="calcInput('6')">6</button><button onclick="calcOp('-')">-</button>
+          <button onclick="calcInput('1')">1</button><button onclick="calcInput('2')">2</button><button onclick="calcInput('3')">3</button><button onclick="calcOp('+')">+</button>
+          <button onclick="calcInput('0')" style="grid-column: span 2;">0</button><button onclick="calcInput('.')">.</button><button onclick="calcEval()">=</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -387,28 +413,39 @@
   </div>
 
   <script>
+    // ======= 自訂 XP Alert ======= //
+    function xpAlert(title, msg, iconType = 'info') {
+      document.getElementById('xp-alert-title').innerText = title;
+      document.getElementById('xp-alert-msg').innerText = msg;
+      const iconUrl = iconType === 'error' ? 'https://win98icons.alexmeub.com/icons/png/msg_error-0.png' : 'https://win98icons.alexmeub.com/icons/png/msg_information-0.png';
+      document.getElementById('xp-alert-icon').src = iconUrl;
+      document.getElementById('xp-alert-overlay').style.display = 'flex';
+    }
+    function closeXpAlert() { document.getElementById('xp-alert-overlay').style.display = 'none'; }
+
     // ======= 電源管理 (開關機/待機) ======= //
     let isStandby = false;
     function executePowerAction(action) {
       document.getElementById('shutdown-overlay').style.display = 'none';
       const overlay = document.getElementById('system-overlay');
       const msg = document.getElementById('system-msg');
+      const standbyMsg = document.getElementById('system-standby-msg');
       const powerBtn = document.getElementById('power-button');
       const bootLogo = document.getElementById('boot-logo');
       
       if(action === 'standby') {
-        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = 'black';
-        msg.style.display = 'none'; powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = '#003399';
+        msg.style.display = 'none'; standbyMsg.style.display = 'block';
+        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+        setTimeout(() => { overlay.style.background = 'black'; standbyMsg.style.display = 'none'; }, 2000);
       } else if (action === 'shutdown') {
         overlay.style.display = 'flex'; overlay.style.background = '#003399';
-        msg.style.display = 'block'; msg.innerText = 'Windows is shutting down...';
+        msg.style.display = 'block'; standbyMsg.style.display = 'none';
         powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
-        setTimeout(() => {
-          overlay.style.background = 'black'; msg.style.display = 'none'; powerBtn.style.display = 'flex';
-        }, 2000);
+        setTimeout(() => { overlay.style.background = 'black'; msg.style.display = 'none'; powerBtn.style.display = 'flex'; }, 2000);
       } else if (action === 'restart') {
         overlay.style.display = 'flex'; overlay.style.background = '#003399';
-        msg.style.display = 'block'; msg.innerText = 'Windows is shutting down...';
+        msg.style.display = 'block'; standbyMsg.style.display = 'none';
         powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
         setTimeout(() => bootUp(), 1500);
       }
@@ -416,51 +453,59 @@
     
     function bootUp() {
       const overlay = document.getElementById('system-overlay');
-      const msg = document.getElementById('system-msg');
-      const powerBtn = document.getElementById('power-button');
-      const bootLogo = document.getElementById('boot-logo');
-      
       overlay.style.background = 'black';
-      powerBtn.style.display = 'none';
-      msg.style.display = 'none';
-      bootLogo.style.display = 'block';
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 3000);
+      document.getElementById('power-button').style.display = 'none';
+      document.getElementById('system-msg').style.display = 'none';
+      document.getElementById('boot-logo').style.display = 'block';
+      setTimeout(() => { overlay.style.display = 'none'; }, 3000);
     }
 
     // 待機喚醒
     window.addEventListener('mousemove', () => { if(isStandby) wakeUp(); });
     window.addEventListener('keydown', () => { if(isStandby) wakeUp(); });
     window.addEventListener('click', () => { if(isStandby) wakeUp(); });
-    function wakeUp() { isStandby = false; document.getElementById('system-overlay').style.display = 'none'; }
+    function wakeUp() { if(!isStandby) return; isStandby = false; document.getElementById('system-overlay').style.display = 'none'; }
 
     // ======= 桌面破壞遊戲 ======= //
     let isDestroying = false;
+    let currentWeapon = 'hammer';
     function startDestroyer() {
       const canvas = document.getElementById('destroyer-canvas');
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       canvas.style.display = 'block'; isDestroying = true;
-      alert("桌面破壞模式已啟動！\n請用滑鼠點擊螢幕進行破壞。\n按下 [ESC] 鍵即可修復螢幕並退出！");
+      document.getElementById('destroyer-toolbar').style.display = 'flex';
+      setWeapon('hammer');
+      xpAlert("提示", "桌面破壞模式已啟動！\n左上角有工具列可以切換武器。\n按下 [ESC] 鍵即可修復螢幕並退出！");
+    }
+    function setWeapon(weapon) {
+      currentWeapon = weapon;
+      document.querySelectorAll('.destroyer-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('btn-' + weapon).classList.add('active');
+    }
+    function stopDestroyer() {
+      const canvas = document.getElementById('destroyer-canvas'); canvas.style.display = 'none';
+      document.getElementById('destroyer-toolbar').style.display = 'none';
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); isDestroying = false;
     }
     document.getElementById('destroyer-canvas').addEventListener('mousedown', function(e) {
       if(!isDestroying) return;
       const ctx = this.getContext('2d');
-      ctx.beginPath(); ctx.moveTo(e.clientX, e.clientY);
-      for(let i=0; i<8; i++) {
-        const angle = (Math.PI * 2 / 8) * i + Math.random(); const length = 20 + Math.random() * 50;
-        ctx.lineTo(e.clientX + Math.cos(angle)*length, e.clientY + Math.sin(angle)*length); ctx.moveTo(e.clientX, e.clientY);
+      if (currentWeapon === 'hammer') {
+        ctx.beginPath(); ctx.moveTo(e.clientX, e.clientY);
+        for(let i=0; i<8; i++) {
+          const angle = (Math.PI * 2 / 8) * i + Math.random(); const length = 30 + Math.random() * 60;
+          ctx.lineTo(e.clientX + Math.cos(angle)*length, e.clientY + Math.sin(angle)*length); ctx.moveTo(e.clientX, e.clientY);
+        }
+        ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(e.clientX, e.clientY, 4, 0, Math.PI*2); ctx.fillStyle = 'black'; ctx.fill();
+      } else if (currentWeapon === 'machinegun') {
+        ctx.beginPath(); ctx.arc(e.clientX, e.clientY, 6, 0, Math.PI*2); ctx.fillStyle = 'black'; ctx.fill();
+        ctx.beginPath(); ctx.arc(e.clientX, e.clientY, 4, 0, Math.PI*2); ctx.fillStyle = '#333'; ctx.fill();
+        ctx.beginPath(); ctx.arc(e.clientX - 2, e.clientY - 2, 2, 0, Math.PI*2); ctx.fillStyle = 'white'; ctx.fill();
       }
-      ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.beginPath(); ctx.arc(e.clientX, e.clientY, 3, 0, Math.PI*2); ctx.fillStyle = 'black'; ctx.fill();
     });
-    window.addEventListener('keydown', function(e) {
-      if(e.key === 'Escape' && isDestroying) {
-        const canvas = document.getElementById('destroyer-canvas'); canvas.style.display = 'none';
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); isDestroying = false;
-      }
-    });
+    window.addEventListener('keydown', function(e) { if(e.key === 'Escape' && isDestroying) stopDestroyer(); });
 
     // ======= XP 小狗 Rover ======= //
     const dogMsgs = [
@@ -486,7 +531,6 @@
     const pCtx = pCanvas.getContext('2d');
     let isPainting = false;
     
-    // Resize Observer 來讓 canvas 跟隨 window-body 大小
     const resizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
         const w = entry.contentRect.width; const h = entry.contentRect.height;
@@ -510,7 +554,7 @@
     pCanvas.addEventListener('mouseout', () => isPainting = false);
     function clearPaint() { pCtx.fillStyle='white'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height); }
 
-    // ======= 完美版踩地雷邏輯 (包含過關、擴散、旗子限制) ======= //
+    // ======= 完美版踩地雷邏輯 ======= //
     const grid = document.getElementById('minesweeper-grid');
     const face = document.getElementById('ms-face');
     const flagDisp = document.getElementById('ms-flags');
@@ -522,7 +566,6 @@
       grid.innerHTML = ''; mineData = []; cellEls = [];
       flagsLeft = TOTAL_MINES; revealedCount = 0; isMsGameOver = false;
       face.innerText = '🙂'; flagDisp.innerText = flagsLeft.toString().padStart(2, '0');
-      // 產生盤面
       for(let i=0; i<64; i++) {
         const cell = document.createElement('div');
         cell.className = 'ms-cell'; cell.dataset.index = i;
@@ -530,13 +573,11 @@
         cell.onmousedown = (e) => { if(e.button===0) clickCell(i); };
         grid.appendChild(cell); cellEls.push(cell); mineData.push(0);
       }
-      // 放地雷
       let placed = 0;
       while(placed < TOTAL_MINES) {
         const r = Math.floor(Math.random() * 64);
         if(mineData[r] !== -1) { mineData[r] = -1; placed++; }
       }
-      // 算數字
       for(let i=0; i<64; i++) {
         if(mineData[i] === -1) continue;
         let count = 0; const x = i%8, y = Math.floor(i/8);
@@ -560,36 +601,32 @@
 
     function clickCell(i) {
       if(isMsGameOver || cellEls[i].classList.contains('revealed') || cellEls[i].innerText === '🚩') return;
-      cellEls[i].classList.add('revealed');
-      revealedCount++;
+      cellEls[i].classList.add('revealed'); revealedCount++;
       
-      if(mineData[i] === -1) { // 踩到地雷
+      if(mineData[i] === -1) {
         cellEls[i].innerText = '💣'; cellEls[i].style.background = 'red';
         face.innerText = '😵'; isMsGameOver = true;
-        // 顯示所有地雷
         for(let j=0; j<64; j++) if(mineData[j]===-1 && j!==i) { cellEls[j].classList.add('revealed'); cellEls[j].innerText = '💣'; }
-        alert('踩到地雷了！遊戲結束！');
+        setTimeout(() => xpAlert('遊戲結束', '踩到地雷了！', 'error'), 100);
       } else {
         if(mineData[i] > 0) {
           cellEls[i].innerText = mineData[i];
           const colors = ['','blue','green','red','purple','maroon','turquoise','black','gray'];
           cellEls[i].style.color = colors[mineData[i]];
         } else {
-          // 擴散邏輯
           const x = i%8, y = Math.floor(i/8);
           for(let dx=-1; dx<=1; dx++) for(let dy=-1; dy<=1; dy++) {
             const nx = x+dx, ny = y+dy;
             if(nx>=0 && nx<8 && ny>=0 && ny<8) clickCell(ny*8+nx);
           }
         }
-        // 檢查勝利
         if(revealedCount === 64 - TOTAL_MINES) {
           face.innerText = '😎'; isMsGameOver = true;
-          alert('恭喜你！成功掃雷！');
+          setTimeout(() => xpAlert('勝利', '恭喜你！成功掃雷！'), 100);
         }
       }
     }
-    initMinesweeper(); // 初始呼叫
+    initMinesweeper();
 
     // ======= 小算盤邏輯 ======= //
     let calcVal = '';
