@@ -126,13 +126,31 @@
     .power-icon { width:45px; height:45px; border-radius:5px; display:flex; justify-content:center; align-items:center; margin-bottom:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
 
     /* 開關機/動畫遮罩 */
-    #system-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
-    #power-button { display: none; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #555 0%, #222 100%); border: 3px solid #777; cursor: pointer; align-items: center; justify-content: center; font-size: 40px; color: #0f0; box-shadow: 0 0 20px #0f0; }
+    #system-standby-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999998; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
+    
+    #shutdown-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999998; display: none;
+      background: linear-gradient(to bottom, #003399 0%, #003399 15%, #5a7edc 15%, #5a7edc 85%, #003399 85%, #003399 100%);
+      flex-direction: column; justify-content: center; align-items: center;
+    }
+
+    #boot-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999999; display: none;
+      background: black; flex-direction: column; justify-content: center; align-items: center; color: white;
+    }
+
+    #power-button-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000000; display: none; background: black;
+      flex-direction: column; justify-content: center; align-items: center;
+    }
+    #power-button {
+      width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, #555 0%, #222 100%);
+      border: 3px solid #777; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 40px; color: #0f0; box-shadow: 0 0 20px #0f0; transition: all 0.2s;
+    }
     #power-button:hover { box-shadow: 0 0 40px #0f0; background: radial-gradient(circle, #666 0%, #333 100%); }
-    #boot-logo { display: none; text-align: center; }
-    .boot-bar-container { width: 250px; height: 15px; border: 2px solid white; border-radius: 5px; overflow: hidden; margin: 30px auto; background: #111; position: relative;}
-    .boot-bar { width: 50px; height: 100%; background: linear-gradient(to right, #245edb, #3f8cf3, #245edb); position: absolute; animation: slide 2s infinite linear; }
-    @keyframes slide { 0% { left: -50px; } 100% { left: 250px; } }
+
+    @keyframes scroll-boot-bar { 0% { left: -40px; } 100% { left: 170px; } }
 
     /* 桌面破壞器 Canvas & 工具列 */
     #destroyer-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99998; display: none; pointer-events: auto; }
@@ -173,16 +191,40 @@
     </div>
   </div>
 
-  <!-- 系統底層遮罩 (開關機) -->
-  <div id="system-overlay">
-    <div id="system-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Windows is shutting down...</div>
+  <!-- 待機畫面遮罩與 3D 迷宮 -->
+  <div id="system-standby-screen">
     <div id="system-standby-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Preparing to Stand by...</div>
-    <iframe id="maze-screensaver" src="" style="display:none; width:100%; height:100%; border:none; z-index: 9999999;"></iframe>
-    <div id="power-button" onclick="bootUp()">⏻</div>
-    <div id="boot-logo">
-      <h1 style="font-family: Tahoma; font-style: italic; font-size: 48px; margin:0;">Microsoft Windows <span style="color:#ef8218;">XP</span></h1>
-      <div class="boot-bar-container"><div class="boot-bar"></div></div>
+    <iframe id="maze-screensaver" src="" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; border:none; z-index: 9999999; pointer-events: none;"></iframe>
+  </div>
+
+  <!-- 關機畫面 -->
+  <div id="shutdown-screen">
+    <div style="background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%); padding: 80px; display:flex; flex-direction:column; align-items:center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Windows_XP_logo.svg" width="220" style="filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));">
+      <div style="color: white; font-family: Tahoma; font-size: 22px; margin-top: 30px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Windows is shutting down...</div>
     </div>
+  </div>
+
+  <!-- 開機畫面 -->
+  <div id="boot-screen">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Windows_XP_logo.svg" width="250" style="margin-bottom: 60px;">
+    <div style="font-family: Arial, sans-serif; font-size: 26px; margin-bottom: 30px; letter-spacing: 1px;">Professional</div>
+    <div style="width: 160px; height: 16px; border: 2px solid #b2b2b2; border-radius: 5px; padding: 2px; position: relative; overflow: hidden; background: black;">
+      <div style="width: 35px; height: 100%; display: flex; gap: 2px; position: absolute; animation: scroll-boot-bar 2.5s infinite linear;">
+        <div style="flex-grow: 1; background: linear-gradient(to bottom, #245edb 0%, #5a9df6 50%, #245edb 100%); border-radius: 1px;"></div>
+        <div style="flex-grow: 1; background: linear-gradient(to bottom, #245edb 0%, #5a9df6 50%, #245edb 100%); border-radius: 1px;"></div>
+        <div style="flex-grow: 1; background: linear-gradient(to bottom, #245edb 0%, #5a9df6 50%, #245edb 100%); border-radius: 1px;"></div>
+      </div>
+    </div>
+    <div style="position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-between; padding: 0 50px; box-sizing: border-box; font-family: Tahoma; font-size: 16px; color: #b2b2b2;">
+      <div>Copyright © 1985-2001<br>Microsoft Corporation</div>
+      <div style="font-weight: bold; font-style: italic; font-size: 24px; display:flex; align-items:flex-end;">Microsoft</div>
+    </div>
+  </div>
+
+  <!-- 黑屏電源鍵畫面 -->
+  <div id="power-button-screen">
+    <div id="power-button" onclick="bootUp()">⏻</div>
   </div>
 
   <!-- 桌面破壞畫布與工具列 -->
@@ -428,56 +470,58 @@
     let isStandby = false;
     function executePowerAction(action) {
       document.getElementById('shutdown-overlay').style.display = 'none';
-      const overlay = document.getElementById('system-overlay');
-      const msg = document.getElementById('system-msg');
+      const standbyScreen = document.getElementById('system-standby-screen');
       const standbyMsg = document.getElementById('system-standby-msg');
-      const powerBtn = document.getElementById('power-button');
-      const bootLogo = document.getElementById('boot-logo');
+      const shutdownScreen = document.getElementById('shutdown-screen');
+      const powerBtnScreen = document.getElementById('power-button-screen');
       const maze = document.getElementById('maze-screensaver');
       
       if(action === 'standby') {
-        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = 'black';
-        msg.style.display = 'none'; standbyMsg.style.display = 'none';
-        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
+        isStandby = true; 
+        standbyScreen.style.display = 'flex'; 
+        standbyScreen.style.background = '#003399';
+        standbyMsg.style.display = 'block';
         
-        // 啟動 3D 迷宮待機畫面
-        maze.src = "https://vanilladeath.github.io/Windows-95-3D-Maze-Screensaver/maze.html";
-        maze.style.display = 'block';
-
-        // 延遲 1 秒後才允許喚醒，避免點擊瞬間直接被喚醒
+        // 延遲 1 秒後轉入黑畫面並載入迷宮
         setTimeout(() => {
+          standbyScreen.style.background = 'black';
+          standbyMsg.style.display = 'none';
+          maze.src = "https://vanilladeath.github.io/Windows-95-3D-Maze-Screensaver/maze.html";
+          maze.style.display = 'block';
+
+          // 綁定喚醒事件
           window.addEventListener('mousemove', wakeUpStandby);
           window.addEventListener('keydown', wakeUpStandby);
           window.addEventListener('click', wakeUpStandby);
-        }, 1000);
+        }, 1500);
 
       } else if (action === 'shutdown') {
-        overlay.style.display = 'flex'; overlay.style.background = '#003399';
-        msg.style.display = 'block'; standbyMsg.style.display = 'none';
-        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
-        setTimeout(() => { overlay.style.background = 'black'; msg.style.display = 'none'; powerBtn.style.display = 'flex'; }, 2000);
+        shutdownScreen.style.display = 'flex';
+        setTimeout(() => { 
+          shutdownScreen.style.display = 'none'; 
+          powerBtnScreen.style.display = 'flex'; 
+        }, 3000);
       } else if (action === 'restart') {
-        overlay.style.display = 'flex'; overlay.style.background = '#003399';
-        msg.style.display = 'block'; standbyMsg.style.display = 'none';
-        powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
-        setTimeout(() => bootUp(), 1500);
+        shutdownScreen.style.display = 'flex';
+        setTimeout(() => { 
+          shutdownScreen.style.display = 'none'; 
+          bootUp(); 
+        }, 2000);
       }
     }
     
     function bootUp() {
-      const overlay = document.getElementById('system-overlay');
-      overlay.style.background = 'black';
-      document.getElementById('power-button').style.display = 'none';
-      document.getElementById('system-msg').style.display = 'none';
-      document.getElementById('boot-logo').style.display = 'block';
-      setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+      document.getElementById('power-button-screen').style.display = 'none';
+      const bootScreen = document.getElementById('boot-screen');
+      bootScreen.style.display = 'flex';
+      setTimeout(() => { bootScreen.style.display = 'none'; }, 4000);
     }
 
     // 待機喚醒邏輯
     function wakeUpStandby() { 
       if(!isStandby) return; 
       isStandby = false; 
-      document.getElementById('system-overlay').style.display = 'none'; 
+      document.getElementById('system-standby-screen').style.display = 'none'; 
       const maze = document.getElementById('maze-screensaver');
       maze.style.display = 'none';
       maze.src = ''; // 清除 iframe 避免佔用資源
