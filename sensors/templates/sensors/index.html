@@ -177,6 +177,7 @@
   <div id="system-overlay">
     <div id="system-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Windows is shutting down...</div>
     <div id="system-standby-msg" style="font-size: 24px; font-family: Tahoma; display: none;">Preparing to Stand by...</div>
+    <iframe id="maze-screensaver" src="" style="display:none; width:100%; height:100%; border:none; z-index: 9999999;"></iframe>
     <div id="power-button" onclick="bootUp()">⏻</div>
     <div id="boot-logo">
       <h1 style="font-family: Tahoma; font-style: italic; font-size: 48px; margin:0;">Microsoft Windows <span style="color:#ef8218;">XP</span></h1>
@@ -192,11 +193,11 @@
     <div class="destroyer-btn" style="color:red; font-size:12px; font-weight:bold;" onclick="stopDestroyer()">ESC</div>
   </div>
 
-  <!-- XP 小狗 Rover (Tenor Embed) -->
+  <!-- XP 小狗 Rover -->
   <div class="rover" onclick="toggleRoverBubble()">
     <div class="rover-bubble" id="rover-bubble"></div>
-    <div style="width: 80px; height: 80px;">
-      <div class="tenor-gif-embed" data-postid="22472907" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/rover-the-dog-gif-fefiax-gif-22472907">Rover The Dog Gif Fefiax GIF</a></div>
+    <div style="width: 80px; height: 80px; display:flex; justify-content:center; align-items:center;">
+      <img src="{% static 'sensors/rover.gif' %}" width="80" style="filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.5));">
     </div>
   </div>
 
@@ -432,12 +433,24 @@
       const standbyMsg = document.getElementById('system-standby-msg');
       const powerBtn = document.getElementById('power-button');
       const bootLogo = document.getElementById('boot-logo');
+      const maze = document.getElementById('maze-screensaver');
       
       if(action === 'standby') {
-        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = '#003399';
-        msg.style.display = 'none'; standbyMsg.style.display = 'block';
+        isStandby = true; overlay.style.display = 'flex'; overlay.style.background = 'black';
+        msg.style.display = 'none'; standbyMsg.style.display = 'none';
         powerBtn.style.display = 'none'; bootLogo.style.display = 'none';
-        setTimeout(() => { overlay.style.background = 'black'; standbyMsg.style.display = 'none'; }, 2000);
+        
+        // 啟動 3D 迷宮待機畫面
+        maze.src = "https://vanilladeath.github.io/Windows-95-3D-Maze-Screensaver/maze.html";
+        maze.style.display = 'block';
+
+        // 延遲 1 秒後才允許喚醒，避免點擊瞬間直接被喚醒
+        setTimeout(() => {
+          window.addEventListener('mousemove', wakeUpStandby);
+          window.addEventListener('keydown', wakeUpStandby);
+          window.addEventListener('click', wakeUpStandby);
+        }, 1000);
+
       } else if (action === 'shutdown') {
         overlay.style.display = 'flex'; overlay.style.background = '#003399';
         msg.style.display = 'block'; standbyMsg.style.display = 'none';
@@ -460,11 +473,18 @@
       setTimeout(() => { overlay.style.display = 'none'; }, 3000);
     }
 
-    // 待機喚醒
-    window.addEventListener('mousemove', () => { if(isStandby) wakeUp(); });
-    window.addEventListener('keydown', () => { if(isStandby) wakeUp(); });
-    window.addEventListener('click', () => { if(isStandby) wakeUp(); });
-    function wakeUp() { if(!isStandby) return; isStandby = false; document.getElementById('system-overlay').style.display = 'none'; }
+    // 待機喚醒邏輯
+    function wakeUpStandby() { 
+      if(!isStandby) return; 
+      isStandby = false; 
+      document.getElementById('system-overlay').style.display = 'none'; 
+      const maze = document.getElementById('maze-screensaver');
+      maze.style.display = 'none';
+      maze.src = ''; // 清除 iframe 避免佔用資源
+      window.removeEventListener('mousemove', wakeUpStandby);
+      window.removeEventListener('keydown', wakeUpStandby);
+      window.removeEventListener('click', wakeUpStandby);
+    }
 
     // ======= 桌面破壞遊戲 ======= //
     let isDestroying = false;
