@@ -498,10 +498,13 @@
         standbyScreen.style.background = '#003399';
         standbyMsg.style.display = 'block';
         
-        // 立即綁定喚醒事件，避免滑鼠移動過快造成的 race condition
-        window.addEventListener('mousemove', wakeUpStandby);
-        window.addEventListener('keydown', wakeUpStandby);
-        window.addEventListener('click', wakeUpStandby);
+        // 延遲 500ms 才綁定喚醒事件，避免被原本點擊滑鼠的動作或微小移動瞬間喚醒
+        setTimeout(() => {
+          if(!isStandby) return;
+          window.addEventListener('mousemove', wakeUpStandby);
+          window.addEventListener('keydown', wakeUpStandby);
+          window.addEventListener('click', wakeUpStandby);
+        }, 500);
 
         // 延遲 1.5 秒後轉入黑畫面並載入迷宮
         setTimeout(() => {
