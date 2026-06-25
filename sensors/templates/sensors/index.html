@@ -345,10 +345,17 @@
       <div class="title-bar-controls"><button aria-label="Minimize" onclick="toggleWindow('win-sensors')"></button><button aria-label="Maximize" onclick="maximizeWindow('win-sensors')"></button><button aria-label="Close" onclick="closeWindow('win-sensors')"></button></div>
     </div>
     <div class="window-body">
-      <div class="data-grid">
-        <div class="data-box"><div>溫度</div><div class="data-value" id="val-temperature">-- °C</div></div>
-        <div class="data-box"><div>濕度</div><div class="data-value" id="val-humidity">-- %</div></div>
-        <div class="data-box"><div>光照度</div><div class="data-value" id="val-light">-- lx</div></div>
+      <div class="data-grid" style="grid-template-columns: repeat(2, 1fr); max-height: 350px; overflow-y: auto;">
+        <div class="data-box"><div>方向指令</div><div class="data-value" id="val-mod1_dirs" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>鑰匙高度</div><div class="data-value" id="val-mod2_keys" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>FM 頻率</div><div class="data-value" id="val-mod3_freq" style="font-size:1.5em;">--</div></div>
+        <div class="data-box"><div>RGB 顏色</div><div class="data-value" id="val-mod4_rgb" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>摩斯密碼</div><div class="data-value" id="val-mod5_morse" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>金庫刻度</div><div class="data-value" id="val-mod6_knob_clicks" style="font-size:1.5em;">--</div></div>
+        <div class="data-box"><div>密碼鎖</div><div class="data-value" id="val-mod7_pwd" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>拆線狀態</div><div class="data-value" id="val-mod8_wires" style="font-size:1.2em;">--</div></div>
+        <div class="data-box"><div>三段開關</div><div class="data-value" id="val-mod9_switches" style="font-size:1.2em;">--</div></div>
+        <div class="data-box" style="border-color: red;"><div>總錯誤次數</div><div class="data-value" id="val-error_count" style="font-size:1.5em; color:red;">--</div></div>
       </div>
     </div>
   </div>
@@ -808,20 +815,23 @@
 
     // ======= 原本的資料串接 ======= //
     const ctx = document.getElementById('sensorChart').getContext('2d');
-    const sensorChart = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [{ label: '溫度', data: [], borderColor: 'red', fill: false, tension: 0.1 }, { label: '濕度', data: [], borderColor: 'blue', fill: false, tension: 0.1 }, { label: '光照度', data: [], borderColor: 'orange', fill: false, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false } });
+    const sensorChart = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [{ label: 'FM頻率 (MHz)', data: [], borderColor: 'green', fill: false, tension: 0.1 }, { label: '金庫刻度', data: [], borderColor: 'blue', fill: false, tension: 0.1 }, { label: '錯誤次數', data: [], borderColor: 'red', fill: false, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false } });
     function fetchLatestData() {
       fetch('/api/latest/').then(res => res.json()).then(data => {
-        if (data.temperature !== null) document.getElementById('val-temperature').innerText = data.temperature.toFixed(2) + ' °C';
-        if (data.humidity !== null) document.getElementById('val-humidity').innerText = data.humidity.toFixed(2) + ' %';
-        if (data.light !== null) document.getElementById('val-light').innerText = data.light.toFixed(2) + ' lx';
+        const keys = ['mod1_dirs', 'mod2_keys', 'mod3_freq', 'mod4_rgb', 'mod5_morse', 'mod6_knob_clicks', 'mod7_pwd', 'mod8_wires', 'mod9_switches', 'error_count'];
+        keys.forEach(k => {
+          if (data[k] !== undefined && data[k] !== null) {
+            document.getElementById('val-' + k).innerText = data[k];
+          }
+        });
       }).catch(() => {});
     }
     function fetchHistoryData() {
       fetch('/api/history/').then(res => res.json()).then(data => {
         const tbody = document.getElementById('history-table-body'); tbody.innerHTML = '';
-        if (data.records && data.records.length > 0) data.records.forEach(r => tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.topic}</td><td>${r.value}</td></tr>`);
+        if (data.records && data.records.length > 0) Object.values(data.records).forEach(r => tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.topic}</td><td>${r.value}</td></tr>`);
         else tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">尚無資料</td></tr>';
-        if (data.chart_data) { sensorChart.data.labels = data.chart_data.labels; sensorChart.data.datasets[0].data = data.chart_data.temperature; sensorChart.data.datasets[1].data = data.chart_data.humidity; sensorChart.data.datasets[2].data = data.chart_data.light; sensorChart.update(); }
+        if (data.chart_data) { sensorChart.data.labels = data.chart_data.labels; sensorChart.data.datasets[0].data = data.chart_data.mod3_freq; sensorChart.data.datasets[1].data = data.chart_data.mod6_knob_clicks; sensorChart.data.datasets[2].data = data.chart_data.error_count; sensorChart.update(); }
       }).catch(() => {});
     }
     setInterval(fetchLatestData, 1000); setInterval(fetchHistoryData, 5000); fetchLatestData(); fetchHistoryData();

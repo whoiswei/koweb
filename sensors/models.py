@@ -2,7 +2,7 @@ from django.db import models
 
 class SensorData(models.Model):
     topic = models.CharField(max_length=255, help_text="MQTT Topic")
-    value = models.FloatField(help_text="Sensor Value")
+    value = models.CharField(max_length=512, help_text="Sensor Value (String/JSON)")
     timestamp = models.DateTimeField(auto_now_add=True, help_text="Time received")
 
     def __str__(self):

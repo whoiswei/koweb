@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 MQTT_BROKER = "127.0.0.1"
 MQTT_PORT = 1883
-MQTT_TOPICS = [("sensor/temperature", 0), ("sensor/humidity", 0), ("sensor/light", 0)]
+MQTT_TOPICS = [("escaperoom/pico/sensors", 0)]
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -18,14 +18,22 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     try:
         topic = msg.topic
-        payload = msg.payload.decode('utf-8')
-        value = float(payload)
+        payload_str = msg.payload.decode('utf-8')
         
-        from .models import SensorData
-        SensorData.objects.create(topic=topic, value=value)
-        logger.info(f"Saved {topic}: {value}")
-    except ValueError:
-        logger.error(f"Invalid payload for topic {msg.topic}: {msg.payload}")
+        if topic == "escaperoom/pico/sensors":
+            import json
+            data = json.loads(payload_str)
+            
+            from .models import SensorData
+            
+            # 將每一個 key-value 存入 DB
+            for key, val in data.items():
+                SensorData.objects.create(topic=key, value=str(val))
+                
+            logger.info(f"Saved all Pico W sensor data: {data}")
+            
+    except json.JSONDecodeError:
+        logger.error(f"Invalid JSON payload for topic {msg.topic}: {msg.payload}")
     except Exception as e:
         logger.error(f"Error saving MQTT message: {e}")
 
