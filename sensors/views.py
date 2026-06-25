@@ -38,7 +38,12 @@ def api_history_data(request):
     # Fetch historical data for Chart.js
     # We only chart mod3_freq, mod6_knob_clicks, and error_count
     chart_topics = ['mod3_freq', 'mod6_knob_clicks', 'error_count']
-    chart_records = SensorData.objects.filter(topic__in=chart_topics).order_by('timestamp')[:100]
+    # Get latest 300 records (approx 100 points per line)
+    latest_chart_records = SensorData.objects.filter(topic__in=chart_topics).order_by('-timestamp')[:300]
+    
+    # Reverse to make them chronological (oldest to newest for the chart)
+    chart_records = list(latest_chart_records)
+    chart_records.reverse()
     
     labels = []
     freq_data = []
