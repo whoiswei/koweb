@@ -24,8 +24,8 @@ def api_latest_data(request):
     return JsonResponse(response_data)
 
 def api_history_data(request):
-    # Fetch all records for table as requested
-    records = SensorData.objects.all()
+    # Fetch recent records (up to 1000) for table to prevent browser crash
+    records = SensorData.objects.all()[:1000]
     records_data = [
         {
             'topic': r.topic,

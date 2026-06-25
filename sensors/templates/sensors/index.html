@@ -846,9 +846,14 @@
     }
     function fetchHistoryData() {
       fetch('/api/history/').then(res => res.json()).then(data => {
-        const tbody = document.getElementById('history-table-body'); tbody.innerHTML = '';
-        if (data.records && data.records.length > 0) Object.values(data.records).forEach(r => tbody.innerHTML += `<tr><td>${r.timestamp}</td><td>${r.topic}</td><td>${r.value}</td></tr>`);
-        else tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">尚無資料</td></tr>';
+        const tbody = document.getElementById('history-table-body');
+        if (data.records && data.records.length > 0) {
+          let html = '';
+          Object.values(data.records).forEach(r => html += `<tr><td>${r.timestamp}</td><td>${r.topic}</td><td>${r.value}</td></tr>`);
+          tbody.innerHTML = html;
+        } else {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">尚無資料</td></tr>';
+        }
         if (data.chart_data) { sensorChart.data.labels = data.chart_data.labels; sensorChart.data.datasets[0].data = data.chart_data.mod3_freq; sensorChart.data.datasets[1].data = data.chart_data.mod6_knob_clicks; sensorChart.data.datasets[2].data = data.chart_data.error_count; sensorChart.update(); }
       }).catch(() => {});
     }
