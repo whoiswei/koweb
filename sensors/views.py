@@ -24,8 +24,8 @@ def api_latest_data(request):
     return JsonResponse(response_data)
 
 def api_history_data(request):
-    # Fetch latest 50 records for table
-    records = SensorData.objects.all()[:50]
+    # Fetch all records for table as requested
+    records = SensorData.objects.all()
     records_data = [
         {
             'topic': r.topic,
